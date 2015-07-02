@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="shortcut icon" href="img/favicon.ico">
+<link rel="stylesheet" type="text/css" href="css/reset.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="js/equalHeight.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/onload.js"></script>
+<script type="text/javascript" src="js/gallery.js"></script>
+<script type="text/javascript" src="js/chat.js"></script>
+<script type="text/javascript" src="js/pda.js"></script>
+<title>Официальный сайт клана Пламя</title>
+</head>
+<body>
+	<div id="wrapper">
+    	<div id="header">
+        	<img src="img/header.png" id="mainImg" width="1152" height="250" alt="Шапка">
+        	<div id="gallery">
+            	<img src="img/gallery/6.png" width="1152" height="250" alt="Шапка">
+            	<img src="img/gallery/5.png" width="1152" height="250" alt="Шапка">
+                <img src="img/gallery/4.png" width="1152" height="250" alt="Шапка">
+                <img src="img/gallery/3.png" width="1152" height="250" alt="Шапка">
+                <img src="img/gallery/2.png" width="1152" height="250" alt="Шапка">
+                <img src="img/gallery/1.png" width="1152" height="250" alt="Шапка">
+            </div>
+        </div>
+        <div id="gradientLine"></div>
+        <div id="body">
+        	<div id="left">
+            	<div id="leftBorder"></div>
+            	<div id="leftBlockContent">
+                	<div class='leftBlock'>
+                    	<div class="leftBlockHeader"></div>
+                        <div class="leftBlockContent">
+                        	<div class="leftBlockContentOpacity"></div>
+                            <div class="leftContent">
+                            	<!-- Здесь содержимое блока -->
+                            </div>
+                            <div class="leftBlockFooter"></div>
+                        </div>
+                    </div>
+                </div>
+	            <div id="leftLine"></div>
+            </div>
+            <div id="right">
+            	<div id="rightBlockContent">
+                	<div class='rightBlock'>
+                    	<div class="rightBlockHeader"></div>
+                        <div class="rightBlockContent">
+                        	<div class="rightBlockContentOpacity"></div>
+                            <div class="rightContent">
+                            	<div id="pda">
+                                	<div id="display">
+                                    	<div id="info">
+	                                    	<div id="date">Loading...</div>
+    	                                	<div id="time">Loading...</div>
+                                        </div>
+                                        <form action="testreg.php" name="pda" method="post" id="loginForm">
+                                        	<input type="text" name="email" id="login">
+                                            <input type="password" name="password" id="pass">
+                                            <div id="buttons">
+	                                            <input type="image" name="submit" src="img/pda/enter.png">
+    	                                        <input type="image" name="submit2" src="img/pda/reg.png">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rightBlockFooter"></div>
+                        </div>
+                    </div>
+                    
+                    <div class='rightBlock'>
+                    	<div class="rightBlockHeader"></div>
+                        <div class="rightBlockContent">
+                        	<div class="rightBlockContentOpacity"></div>
+                            <div class="rightContent">
+                            	<div id="chat">
+                                	<div id="messages">
+                                    	<div class="content">
+                                    		<div class="ball"></div>
+                                    		<div class="ball1"></div>
+										</div>
+                                    </div>
+                                    <div id="chatForm">
+                                    	<form name="chat" onSubmit="return false;">
+                                        	<textarea id="textMessage"></textarea>
+                                            <input type="submit" name="submit" onClick="addMessage()" value="Отправить">
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rightBlockFooter"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="rightLine"></div>
+            </div>
+            <div id="content">
+            	<div id="menu">
+                	<div id="borderMenu">
+                    	<div id="borderTopMenu"></div>
+	                    <div id="borderRightMenu"></div>
+    	                <div id="borderBottomMenu"></div>
+                        <div id="borderLeftMenu"></div>
+                    </div>
+                    <div id="menuBg">
+                    	<div id="menuText"></div>
+                        <div id="menuButtons">
+                        	<div id="button1">
+                            	<div class="buttonText"></div>
+                            </div>
+                            <div id="button2">
+                            	<div class="buttonText"></div>
+                            </div>
+                            <div id="button3">
+                            	<div class="buttonText"></div>
+                            </div>
+                            <div id="button4">
+                            	<div class="buttonText"></div>
+                            </div>
+                            <div id="button5">
+                            	<div class="buttonText"></div>
+                            </div>
+                            <div id="button6">
+                            	<div class="buttonText"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            	<div id="contentText">
+                	<div id="news">
+                    	<div id="newsTitleImg"></div>
+                        <div id="newsContent">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,</div>
+                        <div id="newsFooter"></div>
+                    </div>
+                </div>
+                <div id="rightBorder"></div>
+            </div>
+        </div>
+        <div id="footer">
+        	<div id="footerBg"></div>
+            <div id="leftBorderFooter"></div>
+            <div id="leftLineFooter"></div>
+            <div id="rightLineFooter"></div>
+            <div id="rightBorderFooter"></div>
+        </div>
+    </div>
+</body>
+</html>

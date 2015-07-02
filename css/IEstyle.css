@@ -1,0 +1,19 @@
+.leftBlockContentOpacity, .rightBlockContentOpacity, .userBlockOpacity {
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=16);
+}
+
+.newsFooter, .blogNewsFooter {
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=33);
+}
+
+#main {
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=80);
+}
+
+#main:hover {
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=100);
+}
+
+#dialogs > tbody > tr:hover {
+	filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50);
+}
