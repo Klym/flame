@@ -273,6 +273,7 @@ ul.circle > li {
 	width:50px;
 	height:50px;
 	margin:0 auto;
+	animation:spin .5s infinite linear;
 	-moz-animation:spin .5s infinite linear;
 	-webkit-animation:spin .5s infinite linear;
 }
@@ -290,10 +291,19 @@ ul.circle > li {
 	margin:0 auto;
 	position:relative;
 	top:-50px;
+	animation:spinoff .5s infinite linear;
 	-moz-animation:spinoff .5s infinite linear;
 	-webkit-animation:spinoff .5s infinite linear;
 }
 
+@keyframes spin {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(360deg); }
+}
+@keyframes spinoff {
+	0% { transform:rotate(0deg); }
+	100% { transform:rotate(-360deg); }
+}
 @-moz-keyframes spin {
 	0% { -moz-transform:rotate(0deg); }
 	100% { -moz-transform:rotate(360deg); }
