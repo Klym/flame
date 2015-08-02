@@ -1,0 +1,30 @@
+<!doctype html>
+<html ng-app="adminApp">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="Bootstrap/styles/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script src="Bootstrap/js/jquery-1.11.1.min.js"></script>
+<script src="Bootstrap/js/bootstrap.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/angular_resource.js"></script>
+<script src="js/angular_route.js"></script>
+<script src="js/adminApp.js"></script>
+<base href="http://clan-flame.loc/admin/">
+<title>Flame Admin</title>
+</head>
+<body>
+<ng-include src="'views/navbar.html'"></ng-include>
+<div class="content">
+    <div class="row">
+        <div class="col-md-3">
+            <ng-include src="'views/nav.html'" ng-controller="navCtrl"></ng-include>  
+        </div>
+        <div class="col-md-9">
+            <div ng-view ng-controller="routeCtrl"></div>
+        </div>
+    </div>
+</div>
+<footer class="pull-right">Powered by Klym | admin.clan-flame.ru © 2014-2015</footer>
+</body>
+</html>

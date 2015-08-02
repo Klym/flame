@@ -52,7 +52,12 @@ window.onload = function() { // При загрузке документа
 	
 	// К chat.js
 	if (document.getElementById("chat")) {
-		setTimeout("printChat(); checkUpdates();",1500);
+		window.setInterval(function() {
+			core.style.background = "radial-gradient(hsl(" + deg + ", 100%, 100%) 0%, hsl(" + deg + ", 100%, 50%) 50%, hsl(" + deg++ + ", 100%, 0%) 100%)";
+			if (deg == 360)
+				deg = 0;
+		}, 15);
+		setTimeout("printChat(); checkUpdates();",3000);
 	}
 	
 	// К pda.js
@@ -99,17 +104,7 @@ window.onload = function() { // При загрузке документа
 		var messages = document.getElementById("dMessages");
 		messages.scrollTop = messages.offsetHeight;
 	}
-	
-	// К equalHeight.js
-	if (document.getElementById('left')) {
-		var left = document.getElementById('left');
-		var right = document.getElementById('right');
-		var content = document.getElementById('content');
-		var columns = new Array(left,right,content);
-		window.divs = columns;
-		setEqualHeight(columns);
-	}
-	
+		
 	if (document.getElementsByClassName('rightUserBlock')[0] != undefined) {
 		var rightUserBlock = document.getElementsByClassName('rightUserBlock');
 		var leftUserBlock = document.getElementsByClassName('leftUserBlock');

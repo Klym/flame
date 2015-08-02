@@ -75,7 +75,7 @@ try {
                         </div>
                     </form>
                 </div>
-                <div id="rightBlogBorder"></div>
+                <div id="rightBorder"></div>
 			</div>
 		</div>
 		<div id="footer">

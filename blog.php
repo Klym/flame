@@ -59,7 +59,7 @@ try {
 					}
 					?>
                 </div>
-                <div id="rightBlogBorder"></div>
+                <div id="rightBorder"></div>
             </div>
       	</div>
         <? require("blocks/footer.php"); ?>

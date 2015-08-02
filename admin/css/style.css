@@ -1,0 +1,27 @@
+body {
+	background-color:#f5f5f5;
+}
+
+footer {
+	margin-right:40px;
+}
+
+.shadow {
+	box-shadow: 0px 1px 6px 0px rgba(0,0,0,.3);
+}
+
+.content {
+	margin:100px 40px 0px 40px;
+}
+
+.edit:hover {
+	cursor:pointer;
+	box-shadow:0px 0px 8px rgba(0,0,0,.3);
+}
+
+@media (min-width: 992px) {
+	.navigation {
+		width:250px;
+		position:fixed;
+	}
+}

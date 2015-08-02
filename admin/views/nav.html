@@ -1,0 +1,30 @@
+<div class="list-group navigation shadow"  ng-click="changeRoute()">
+    <a href="index.html" class="list-group-item {{selectedPage == 'main' ? 'active' : ''}}" data-page="main">
+    	<span class="glyphicon glyphicon-chevron-right pull-right"></span>
+    	Главная
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'pages' ? 'active' : ''}}" data-page="pages">
+    	<span class="badge">{{counts.pages}}</span>
+    	Страницы
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'users' ? 'active' : ''}}" data-page="users">
+    	<span class="badge">{{counts.users}}</span>
+    	Пользователи
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'categories' ? 'active' : ''}}" data-page="categories">
+    	<span class="badge">{{counts.categories}}</span>
+    	Категории
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'data' ? 'active' : ''}}" data-page="data">
+        <span class="badge">{{counts.dataItems}}</span>
+        Материалы
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'news' ? 'active' : ''}}" data-page="news">
+        <span class="badge">{{counts.news}}</span>
+        Новости
+    </a>
+    <a href="#" class="list-group-item {{selectedPage == 'sostav' ? 'active' : ''}}" data-page="sostav">
+        <span class="badge">{{counts.players}}</span>
+        Состав
+    </a>
+</div>

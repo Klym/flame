@@ -1,0 +1,162 @@
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="pageCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{pages.length}}</span>
+              <h3 class="panel-title">Страницы</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="page in pages | limitTo : limit">
+                <td>{{$index + 1}}</td>
+                <td>{{page.title}}</td>
+                <td>{{page.meta_d}}</td>
+               </tr>
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="pages" ng-click="changeRoute()">Подробнее</button>
+          </div>                  
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="userCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{users.length}}</span>
+              <h3 class="panel-title">Пользователи</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                    <th>Логин</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="user in users | limitTo : limit">
+                <td>{{$index + 1}}</td>
+                <td>{{user.name}}</td>
+                <td>{{user.fam}}</td>
+                <td>{{user.login}}</td>
+              </tr>
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="users" ng-click="changeRoute()">Подробнее</button>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="categoryCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{categories.length}}</span>
+              <h3 class="panel-title">Категории</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="category in categories | limitTo : limit">
+                <td>{{$index + 1}}</td>
+                <td>{{category.title}}</td>
+                <td>{{category.meta_d}}</td>
+              </tr>    
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="categories" ng-click="changeRoute()">Подробнее</button>
+          </div>                  
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="dataCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{data.length}}</span>
+              <h3 class="panel-title">Материалы</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Название</th>
+                    <th>Категория</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="item in data | limitTo: limit">
+                <td>{{$index + 1}}</td>
+                <td>{{item.title}}</td>
+                <td>{{item.cat}}</td>
+              </tr>
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="data" ng-click="changeRoute()">Подробнее</button>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="newsCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{news.length}}</span>
+              <h3 class="panel-title">Новости</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Название</th>
+                    <th>Дата добавления</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="newsNote in news | limitTo : limit">
+                <td>{{$index + 1}}</td>
+                <td>{{newsNote.title}}</td>
+                <td>{{newsNote.date}}</td>
+              </tr>   
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="news" ng-click="changeRoute()">Подробнее</button>
+          </div>                  
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-success" ng-controller="sostavCtrl">
+          <div class="panel-heading">
+              <span class="badge pull-right">{{sostav.length}}</span>
+              <h3 class="panel-title">Состав</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-hover">
+              <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Имя</th>
+                    <th>Количество очков</th>
+                    <th>Ранг</th>
+                  </tr>
+              </thead>
+              <tr ng-repeat="player in players | limitTo : limit">
+                <td>{{$index + 1}}</td>
+                <td>{{player.name}}</td>
+                <td>{{player.scores}}</td>
+                <td>{{player.rang}}</td>
+              </tr>                 
+            </table>
+            <button type="button" class="btn btn-xs btn-warning pull-right" data-page="sostav" ng-click="changeRoute()">Подробнее</button>
+          </div>
+        </div>
+    </div>
+</div>
