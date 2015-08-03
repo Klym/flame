@@ -135,7 +135,7 @@
     <div class="col-md-6">
         <div class="panel panel-success" ng-controller="sostavCtrl">
           <div class="panel-heading">
-              <span class="badge pull-right">{{sostav.length}}</span>
+              <span class="badge pull-right">{{players.length}}</span>
               <h3 class="panel-title">Состав</h3>
           </div>
           <div class="panel-body">
@@ -152,7 +152,7 @@
                 <td>{{$index + 1}}</td>
                 <td>{{player.name}}</td>
                 <td>{{player.scores}}</td>
-                <td>{{player.rang}}</td>
+                <td>{{player.rangName}}</td>
               </tr>                 
             </table>
             <button type="button" class="btn btn-xs btn-warning pull-right" data-page="sostav" ng-click="changeRoute()">Подробнее</button>

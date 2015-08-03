@@ -95,10 +95,10 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 // Каждый контроллер отправляет событие изменения количества данных контроллеру навигации
 
 adminApp.controller("pageCtrl", function($scope) {
-	$scope.pages = [{ title: "Главная страница", meta_d: "Добро пожаловать на сайт клана Пламя" },
-					{ title: "О нас", meta_d: "информация о сайте, о клане Пламя" },
-					{ title: "Каталог", meta_d: "Каталог файлов Пламя" },
-					{ title: "Регистрация", meta_d: "Регистрация на сайте клана Пламя" }];
+	$scope.pages = [{ title: "Главная страница", meta_d: "Добро пожаловать на сайт клана Пламя", pageCode: "index" },
+					{ title: "О нас", meta_d: "информация о сайте, о клане Пламя", pageCode: "info" },
+					{ title: "Каталог", meta_d: "Каталог файлов Пламя", pageCode: "catalog" },
+					{ title: "Регистрация", meta_d: "Регистрация на сайте клана Пламя", pageCode: "registration" }];
 	$scope.$emit("changeCount", {
 		key: "pages",
 		val: $scope.pages.length
@@ -106,24 +106,34 @@ adminApp.controller("pageCtrl", function($scope) {
 });
 
 adminApp.controller("userCtrl", function($scope) {
-	$scope.users = [{ name: "Максим", fam: "Клименко", login: "Клым" },
-					{ name: "Олег", fam: "Перятинский", login: "Хитрец" },
-					{ name: "Андрей", fam: "Оганджанов", login: "Dron" },
-					{ name: "Артем", fam: "Шахов", login: "BurBon" }];
+	$scope.users = [{ name: "Максим", fam: "Клименко", login: "Клым", email: "Klymstalker@yandex.ua", groupName: "Администраторы" },
+					{ name: "Олег", fam: "Перятинский", login: "Хитрец", email: "peryatinsky@yandex.ru", groupName: "Администраторы" },
+					{ name: "Андрей", fam: "Оганджанов", login: "Dron", email: "grom-dro@yandex.ru", groupName: "Пламя" },
+					{ name: "Артем", fam: "Шахов", login: "BurBon", email: "podgory@list.ru", groupName: "Пламя" }];
 	$scope.$emit("changeCount", {
 		key: "users",
 		val: $scope.users.length
 	});
 });
 
+var categories = [{ title: "Моды Сталкер", meta_d: "Модификации к игре сталкер", meta_k: "моды, дополнения" },
+				 { title: "Видеоуроки Сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "сервера, установка, сталкер, сетевая игра" },
+				 { title: "Фильмы сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "фильмы , сталкер" }];
+					 
 adminApp.controller("categoryCtrl", function($scope) {
-	$scope.categories = [{ title: "Моды Сталкер", meta_d: "Модификации к игре сталкер" },
-						 { title: "Видеоуроки Сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры" },
-						 { title: "Фильмы сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры" }];
-	$scope.$emit("changeCount", {
-		key: "categories",
-		val: $scope.categories.length
-	});
+	$scope.categories = categories;
+
+	$scope.$watch("categories.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "categories",
+			val: newValue
+		});
+    });
+	
+	$scope.del = function(categoryId) {
+		if (confirm("Вы дейстивтельно хотите удалить эту категорию?"))
+		$scope.categories.splice(categoryId, 1);
+	}
 });
 
 adminApp.controller("dataCtrl", function($scope) {
@@ -137,9 +147,9 @@ adminApp.controller("dataCtrl", function($scope) {
 });
 
 adminApp.controller("newsCtrl", function($scope) {
-	$scope.news = [{ title: "Сталкер Мод «Flame-Zone»", date: "24.12.2014" },
-				   { title: "Пикник на обочине. Хроника посещения", date: "14.04.2014" },
-				   { title: "[Легенды Зоны] В петле", date: "28.04.2014" }];			   
+	$scope.news = [{ title: "Сталкер Мод «Flame-Zone»", date: "24.12.2014", typeName: "Новость" },
+				   { title: "Пикник на обочине. Хроника посещения", date: "14.04.2014", typeName: "Новость / Блог" },
+				   { title: "[Легенды Зоны] В петле", date: "28.04.2014", typeName: "Блог" }];
 	$scope.$emit("changeCount", {
 		key: "news",
 		val: $scope.news.length
@@ -147,9 +157,9 @@ adminApp.controller("newsCtrl", function($scope) {
 });
 
 adminApp.controller("sostavCtrl", function($scope) {
-	$scope.players = [{ name: "Хитрец", scores: "500000", rang: "Военачальник" },
-					  { name: "Клым", scores: "480000", rang: "Командующий" },
-					  { name: "Дрoн", scores: "176375", rang: "Бывалый Воин" }];
+	$scope.players = [{ name: "Хитрец", scores: "500000", rangName: "Военачальник" },
+					  { name: "Клым", scores: "480000", rangName: "Командующий" },
+					  { name: "Дрoн", scores: "176375", rangName: "Бывалый Воин" }];
 	$scope.$emit("changeCount", {
 		key: "players",
 		val: $scope.players.length
