@@ -94,33 +94,61 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 // Контроллеры, отвечающие за логику данных.
 // Каждый контроллер отправляет событие изменения количества данных контроллеру навигации
 
-adminApp.controller("pageCtrl", function($scope) {
-	$scope.pages = [{ title: "Главная страница", meta_d: "Добро пожаловать на сайт клана Пламя", pageCode: "index" },
-					{ title: "О нас", meta_d: "информация о сайте, о клане Пламя", pageCode: "info" },
-					{ title: "Каталог", meta_d: "Каталог файлов Пламя", pageCode: "catalog" },
-					{ title: "Регистрация", meta_d: "Регистрация на сайте клана Пламя", pageCode: "registration" }];
-	$scope.$emit("changeCount", {
-		key: "pages",
-		val: $scope.pages.length
-	});
+var pages = [{ title: "Главная страница", meta_d: "Добро пожаловать на сайт клана Пламя", pageCode: "index" },
+			 { title: "О нас", meta_d: "информация о сайте, о клане Пламя", pageCode: "info" },
+			 { title: "Каталог", meta_d: "Каталог файлов Пламя", pageCode: "catalog" },
+			 { title: "Регистрация", meta_d: "Регистрация на сайте клана Пламя", pageCode: "registration" }];
+adminApp.controller("pageCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+	$scope.pages = pages;
+	
+	// Устанавливаем наблюдение за длинной массива данных, при его изменении отправляем новое значение контроллеру навигации
+	$scope.$watch("pages.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "pages",
+			val: newValue
+		});
+    });
+	
+	// Метод удаления данных из scope текущего контроллера
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить эту страницу?")) return;
+		// Готовим сообщения для вывода
+		var successMessage = "Страница <strong>\"" + $scope.pages[id].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[id].title + "\"</strong> не удалена.";
+		// Удаляем объект из массива
+		$scope.pages.splice(id, 1);
+		// Вызываем сервис вывода сообщения
+		showSuccessMessage.show(successMessage);
+	}
 });
 
-adminApp.controller("userCtrl", function($scope) {
-	$scope.users = [{ name: "Максим", fam: "Клименко", login: "Клым", email: "Klymstalker@yandex.ua", groupName: "Администраторы" },
-					{ name: "Олег", fam: "Перятинский", login: "Хитрец", email: "peryatinsky@yandex.ru", groupName: "Администраторы" },
-					{ name: "Андрей", fam: "Оганджанов", login: "Dron", email: "grom-dro@yandex.ru", groupName: "Пламя" },
-					{ name: "Артем", fam: "Шахов", login: "BurBon", email: "podgory@list.ru", groupName: "Пламя" }];
-	$scope.$emit("changeCount", {
-		key: "users",
-		val: $scope.users.length
-	});
+var users = [{ name: "Максим", fam: "Клименко", login: "Клым", email: "Klymstalker@yandex.ua", groupName: "Администраторы" },
+			 { name: "Олег", fam: "Перятинский", login: "Хитрец", email: "peryatinsky@yandex.ru", groupName: "Администраторы" },
+			 { name: "Андрей", fam: "Оганджанов", login: "Dron", email: "grom-dro@yandex.ru", groupName: "Пламя" },
+			 { name: "Артем", fam: "Шахов", login: "BurBon", email: "podgory@list.ru", groupName: "Пламя" }];
+adminApp.controller("userCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+	$scope.users = users;
+	
+	$scope.$watch("users.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "users",
+			val: newValue
+		});
+    });
+	
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить этого пользователя?")) return;
+		var successMessage = "Пользователь <strong>\"" + $scope.users[id].login + "\"</strong> успешно удален.";
+		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[id].login + "\"</strong> не удален.";
+		$scope.users.splice(id, 1);
+		showSuccessMessage.show(successMessage);
+	}
 });
 
 var categories = [{ title: "Моды Сталкер", meta_d: "Модификации к игре сталкер", meta_k: "моды, дополнения" },
-				 { title: "Видеоуроки Сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "сервера, установка, сталкер, сетевая игра" },
-				 { title: "Фильмы сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "фильмы , сталкер" }];
-					 
-adminApp.controller("categoryCtrl", function($scope) {
+				  { title: "Видеоуроки Сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "сервера, установка, сталкер, сетевая игра" },
+				  { title: "Фильмы сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "фильмы , сталкер" }];		 
+adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage) {
 	$scope.categories = categories;
 
 	$scope.$watch("categories.length", function (newValue) {
@@ -130,38 +158,77 @@ adminApp.controller("categoryCtrl", function($scope) {
 		});
     });
 	
-	$scope.del = function(categoryId) {
-		if (confirm("Вы дейстивтельно хотите удалить эту категорию?"))
-		$scope.categories.splice(categoryId, 1);
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить эту категорию?")) return;
+		var successMessage = "Категория <strong>\"" + $scope.categories[id].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[id].title + "\"</strong> не удалена.";
+		$scope.categories.splice(id, 1);
+		showSuccessMessage.show(successMessage);
 	}
 });
 
-adminApp.controller("dataCtrl", function($scope) {
-	$scope.data = [{ title: "S.T.A.L.K.E.R - Зов Припяти", cat: "Игры Сталкер", meta_d: "Сталкер Зов Припяти", date: "03.10.2014" },
-				   { title: "Создание сервера для сетевой игры", cat: "Видеоуроки Сталкер", meta_d: "Пошаговая инструкция установки сервера для Сталкер Чистое Небо", date: "03.10.2014" },
-				   { title: "Локации и аномалии в Survarium", cat: "Survarium (Сурвариум)", meta_d: "Локации и аномалии в Survarium", date: "04.05.2014" }];
-	$scope.$emit("changeCount", {
-		key: "dataItems",
-		val: $scope.data.length
-	});
+var data = [{ title: "S.T.A.L.K.E.R - Зов Припяти", cat: "Игры Сталкер", meta_d: "Сталкер Зов Припяти", date: "03.10.2014" },
+		    { title: "Создание сервера для сетевой игры", cat: "Видеоуроки Сталкер", meta_d: "Пошаговая инструкция установки сервера для Сталкер Чистое Небо", date: "03.10.2014" },
+		    { title: "Локации и аномалии в Survarium", cat: "Survarium (Сурвариум)", meta_d: "Локации и аномалии в Survarium", date: "04.05.2014" }];
+adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+	$scope.data = data;
+	
+	$scope.$watch("data.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "dataItems",
+			val: newValue
+		});
+    });
+	
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
+		var successMessage = "Заметка <strong>\"" + $scope.data[id].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[id].title + "\"</strong> не удалена.";
+		$scope.data.splice(id, 1);
+		showSuccessMessage.show(successMessage);
+	}
 });
 
-adminApp.controller("newsCtrl", function($scope) {
-	$scope.news = [{ title: "Сталкер Мод «Flame-Zone»", date: "24.12.2014", typeName: "Новость" },
-				   { title: "Пикник на обочине. Хроника посещения", date: "14.04.2014", typeName: "Новость / Блог" },
-				   { title: "[Легенды Зоны] В петле", date: "28.04.2014", typeName: "Блог" }];
-	$scope.$emit("changeCount", {
-		key: "news",
-		val: $scope.news.length
-	});
+var news = [{ title: "Сталкер Мод «Flame-Zone»", date: "24.12.2014", typeName: "Новость" },
+		    { title: "Пикник на обочине. Хроника посещения", date: "14.04.2014", typeName: "Новость / Блог" },
+		    { title: "[Легенды Зоны] В петле", date: "28.04.2014", typeName: "Блог" }];
+adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+	$scope.news = news;
+	
+	$scope.$watch("news.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "news",
+			val: newValue
+		});
+    });
+	
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить эту новость?")) return;
+		var successMessage = "Новость <strong>\"" + $scope.news[id].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[id].title + "\"</strong> не удалена.";
+		$scope.news.splice(id, 1);
+		showSuccessMessage.show(successMessage);
+	}
 });
 
-adminApp.controller("sostavCtrl", function($scope) {
-	$scope.players = [{ name: "Хитрец", scores: "500000", rangName: "Военачальник" },
-					  { name: "Клым", scores: "480000", rangName: "Командующий" },
-					  { name: "Дрoн", scores: "176375", rangName: "Бывалый Воин" }];
-	$scope.$emit("changeCount", {
-		key: "players",
-		val: $scope.players.length
-	});
+var players = [{ name: "Хитрец", scores: "500000", rangName: "Военачальник" },
+			   { name: "Клым", scores: "480000", rangName: "Командующий" },
+			   { name: "Дрoн", scores: "176375", rangName: "Бывалый Воин" }];
+adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+	$scope.players = players;
+	
+	$scope.$watch("players.length", function (newValue) {
+		$scope.$emit("changeCount", {
+			key: "players",
+			val: newValue
+		});
+    });
+	
+	$scope.del = function(id) {
+		if (!confirm("Вы дейстивтельно хотите удалить этого игрока?")) return;
+		var successMessage = "Игрок <strong>\"" + $scope.players[id].name + "\"</strong> успешно удален.";
+		var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[id].name + "\"</strong> не удален.";
+		$scope.players.splice(id, 1);
+		showSuccessMessage.show(successMessage);
+	}
 });
