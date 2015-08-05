@@ -1,8 +1,8 @@
 <div class="row">
 	<div class="col-md-12">
-    	<div class="panel panel-success" ng-controller="userCtrl">
+    	<div class="panel panel-success" ng-controller="pageCtrl">
           <div class="panel-heading">
-              <h3 class="panel-title">Редактирование пользователей</h3>
+              <h3 class="panel-title">Редактирование страниц</h3>
           </div>
           <div class="panel-body">
           	<div class="row">
@@ -18,20 +18,20 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
-                    <th>Логин</th>
-                    <th>E-Mail</th>
-                    <th>Группа</th>
+                    <th>Название</th>
+                    <th>Описание</th>
+                    <th>Страница</th>
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="user in users">
-                    <td>{{user.login}}</td>
-                    <td>{{user.email}}</td>
-                    <td>{{user.groupName}}</td>
+                <tr ng-repeat="page in pages">
+                    <td>{{page.title}}</td>
+                    <td>{{page.meta_d}}</td>
+                    <td>{{page.pageCode}}</td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit"></span>
+                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(page.id)"></span>
                         &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del($index)"></span>
+                        <span class="glyphicon glyphicon-trash edit" ng-click="del(page.id)"></span>
                     </td>
                 </tr>
             </table>

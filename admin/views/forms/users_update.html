@@ -1,0 +1,93 @@
+<div class="row">
+	<div class="col-md-12">
+    	<div class="panel panel-success" ng-controller="userCtrl">
+          <div class="panel-heading">
+              <h3 class="panel-title">Редактирование пользователей</h3>
+          </div>
+          <div class="panel-body">
+          	<div class="row">
+            	<form class="form-horizontal form" name="updateForm" ng-submit="update(currentId)">
+                  <div class="form-group">
+                    <label for="userLogin" class="col-sm-2 control-label">Логин</label>
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control" id="userLogin" ng-model="users[currentId].login" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="userPassword" class="col-sm-2 control-label">Пароль</label>
+                    <div class="col-sm-4">
+                      <input type="text" class="form-control" id="userPassword" ng-model="users[currentId].password" required ng-disabled="disableEditPass">
+                    </div>
+                    <div class"col-sm-2">
+                    	<button type="button" class="btn btn-sm btn-danger rightBtn" ng-click="enablePass($event)">Открыть</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userEmail" class="col-sm-2 control-label">Email</label>
+                    <div class="col-sm-5">
+                    	<input type="email" class="form-control" id="userEmail" ng-model="users[currentId].email" required>
+                    </div>
+                  </div>
+                  <div class="form-group"  ng-controller="userGroupCtrl">
+                  	<label for="userGroup" class="col-sm-2 control-label">Группа</label>
+                    <div class="col-sm-5">
+                    	<select class="form-control" id="userGroup" ng-model="selected" ng-options="group.title for group in groups track by group.id"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userName" class="col-sm-2 control-label">Имя</label>
+                    <div class="col-sm-5">
+                    	<input type="text" class="form-control" id="userName" ng-model="users[currentId].name" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userFam" class="col-sm-2 control-label">Фамилия</label>
+                    <div class="col-sm-5">
+                    	<input type="text" class="form-control" id="userFam" ng-model="users[currentId].fam" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userPol" class="col-sm-2 control-label">Пол</label>
+                    <div class="col-sm-2">
+                    	<select class="form-control" id="userPol" ng-model="genders[users[currentId].pol]" ng-options="pol for pol in genders"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userRegDate" class="col-sm-2 control-label">Дата регистрации</label>
+                    <div class="col-sm-5">
+                    	<input type="datetime-local" class="form-control" id="userRegDate" ng-model="users[currentId].regDate" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userBirthDate" class="col-sm-2 control-label">Дата рождения</label>
+                    <div class="col-sm-5">
+                    	<input type="date" class="form-control" id="userBirthDate" ng-model="users[currentId].birthDate" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userAvatar" class="col-sm-2 control-label">Аватар</label>
+                    <div class="col-sm-5">
+                    	<input type="text" class="form-control" id="userAvatar" ng-model="users[currentId].avatar" required>
+                    </div>
+                    <div class"col-sm-1">
+                    	<img src="../../avatars/{{users[currentId].avatar}}" class="avatar-sm">
+						<button type="button" class="btn btn-sm btn-warning rightBtn" ng-click="delAvatar($event, currentId)">Удалить</button>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="userActivation" class="col-sm-2 control-label">Доступ</label>
+                    <div class="col-sm-3">
+                    	<select class="form-control" id="userActivation" ng-model="activations[users[currentId].activation]" ng-options="activation for activation in activations"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                      <input type="submit" class="btn btn-primary" value="Обновить">
+                    </div>
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>

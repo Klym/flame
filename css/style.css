@@ -469,19 +469,12 @@ body {
 
 /* Конец блока header */
 
-#gradientLine {
-	position:relative;
-	width:1152px;
-	height:4px;
-	z-index:2;
-	background-image:url(../img/gradientLine.png);
-}
-
 /* Начало блока body */
 
 #body {
 	position:relative;
 	width:1152px;
+	top:-2px;
 	color:#FFF;
 	display:-moz-box;
 	display:-ms-flexbox;
@@ -505,7 +498,6 @@ body {
 }
 
 #leftBlockContent {
-	/*top:1px;*/
 	width:211px;
 }
 
@@ -1293,6 +1285,7 @@ td.dAva, td.dAva > img {
 
 #navigation {
 	position:relative;
+	left:8px;
 	top:10px;
 	width:99%;
 	margin-bottom:20px;
@@ -1529,6 +1522,5 @@ td.dAva, td.dAva > img {
 /*@media screen and (max-width: 1152px) {
 	#wrapper, #wrapper > div, #mainImg, #gallery > img {
 		width:100%;
-	}
-	
+	}	
 }*/
