@@ -49,7 +49,7 @@
                   <div class="form-group">
                   	<label for="userPol" class="col-sm-2 control-label">Пол</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userPol" ng-model="genders[users[currentId].pol]" ng-options="pol for pol in genders"></select>
+                    	<select class="form-control" id="userPol" ng-model="gender" ng-options="pol.key for pol in genders track by pol.val"></select>
                     </div>
                   </div>
                   <div class="form-group">
@@ -77,7 +77,7 @@
                   <div class="form-group">
                   	<label for="userActivation" class="col-sm-2 control-label">Доступ</label>
                     <div class="col-sm-3">
-                    	<select class="form-control" id="userActivation" ng-model="activations[users[currentId].activation]" ng-options="activation for activation in activations"></select>
+                    	<select class="form-control" id="userActivation" ng-model="activated" ng-options="activation.key for activation in activations track by activation.val"></select>
                     </div>
                   </div>
                   <div class="form-group">

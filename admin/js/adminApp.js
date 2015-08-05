@@ -192,12 +192,20 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 	}
 	
 	$scope.delAvatar = function(event, id) {
-		$scope.users[id].avatar = "net-avatara.jpg";
-		event.target.disabled = true;
+		var confirmation = confirm("Вы действительно хотите удалить аватар?");
+		if (confirmation) {
+			$scope.users[id].avatar = "net-avatara.jpg";
+			event.target.disabled = true;
+		}
 	}
 	
-	$scope.genders = { 1: "Мужской", 2: "Женский" };
-	$scope.activations = ["Не подтвержден", "Подтвержден"];
+	$scope.currentId;
+	$scope.genders = [{ key: "Мужской", val: 1 }, { key: "Женский", val: 2 }];
+	$scope.activations = [{ key: "Не подтвержден", val: 0}, { key: "Подтвержден", val: 1 }];
+	if ($scope.currentId != undefined) {
+		$scope.gender = $scope.genders[($scope.users[$scope.currentId].pol == 1) ? 0 : 1];
+		$scope.activated = $scope.activations[$scope.users[$scope.currentId].activation];
+	}
 	
 	$scope.$watch("users.length", function (newValue) {
 		$scope.$emit("changeCount", {
@@ -215,11 +223,12 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 		showSuccessMessage.show(successMessage);
 	}
 	
+	
 	$scope.goUpdate = function(id) {
-		var currentId = searchObj.searchId($scope.users, id);
+		$scope.currentId = searchObj.searchId($scope.users, id);
 		$scope.$emit("changeRoute", {
 			route: "users_update",
-			id: currentId,
+			id: $scope.currentId,
 			notAnotherPage: true
 		});
 	}
