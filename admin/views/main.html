@@ -38,6 +38,7 @@
                     <th>Имя</th>
                     <th>Фамилия</th>
                     <th>Логин</th>
+                    <th>Группа</th>
                   </tr>
               </thead>
               <tr ng-repeat="user in users | limitTo : limit">
@@ -45,6 +46,7 @@
                 <td>{{user.name}}</td>
                 <td>{{user.fam}}</td>
                 <td>{{user.login}}</td>
+                <td ng-controller="userGroupCtrl" define-user-group></td>
               </tr>
             </table>
             <button type="button" class="btn btn-xs btn-warning pull-right" data-page="users" ng-click="changeRoute()">Подробнее</button>
@@ -94,10 +96,10 @@
                     <th>Категория</th>
                   </tr>
               </thead>
-              <tr ng-repeat="item in data | limitTo: limit">
+              <tr ng-repeat="dataItem in data | limitTo: limit">
                 <td>{{$index + 1}}</td>
-                <td>{{item.title}}</td>
-                <td>{{item.cat}}</td>
+                <td>{{dataItem.title}}</td>
+                <td ng-controller="categoryCtrl" define-cat></td>
               </tr>
             </table>
             <button type="button" class="btn btn-xs btn-warning pull-right" data-page="data" ng-click="changeRoute()">Подробнее</button>

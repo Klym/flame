@@ -62,13 +62,14 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 	$rootScope.limit = "3";				// Количество выводимых данных на главной
 	$rootScope.selectedPage = "main";	// Текущая страница
-	$rootScope.currentId;
+	$rootScope.currentId;				// Текущий id данных
 	
 	// Перехватываем событие изменения страницы
 	$scope.$on("changeRoute", function(event, args) {
 		$location.path("/" + args.route);
 		if (!args.notAnotherPage) {
 			$rootScope.selectedPage = args.route;
+			$rootScope.currentId = undefined;
 		}
 		if (args.id !== undefined) {
 			$rootScope.currentId = args.id;
@@ -123,10 +124,6 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 
 // Контроллеры, отвечающие за логику данных.
 
-var pages = [{ id: 1, title: "Главная страница", meta_d: "Добро пожаловать на сайт клана Пламя", meta_k: "Пламя, Flame, клан, главная, новости, сайт клана Пламя, сталкер, Survarium, постапокалипсис", pageCode: "index" },
-			 { id: 2, title: "О нас", meta_d: "информация о сайте, о клане Пламя", pageCode: "info" },
-			 { id: 5, title: "Каталог", meta_d: "Каталог файлов Пламя", pageCode: "catalog" },
-			 { id: 6, title: "Регистрация", meta_d: "Регистрация на сайте клана Пламя", pageCode: "registration" }];
 adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.pages = pages;
 	// Получаем данные AJAX'ом
@@ -166,45 +163,75 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 	}
 	
 	// Метод отправки новых данных на сервер
-	$scope.update = function(id) {
+	$scope.update = function() {
 		// Отправка данных на сервер
 		
-		var successMessage = "Страница <strong>\"" + $scope.pages[id].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[id].title + "\"</strong> не обновлена.";
+		var successMessage = "Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> успешно обновлена.";
+		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> не обновлена.";
 		showSuccessMessage.show(successMessage);
 	}
 });
 
-var users = [{ id: 1, name: "Максим", fam: "Клименко", pol: 1, login: "Клым", password: "6cc9c9721f21eb862447d382fd7f7968", email: "Klymstalker@yandex.ua", access: 1, regDate: new Date("2014-10-10 22:29:18"), birthDate: new Date("1997-07-06"), avatar: "a1434289074.jpg", activation: 1 },
-			 { id: 2, name: "Олег", fam: "Перятинский", login: "Хитрец", email: "peryatinsky@yandex.ru", access: 1},
-			 { id: 5, name: "Андрей", fam: "Оганджанов", login: "Dron", email: "grom-dro@yandex.ru",  access: 3 },
-			 { id: 6, name: "Артем", fam: "Шахов", login: "BurBon", email: "podgory@list.ru",  access: 3 }];
 adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.users = users;
-	
+	for (var i = 0; i < users.length; i++) {
+		$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
+	}
+	// Метод активации поля изменения пароля
 	$scope.disableEditPass = true;
 	$scope.enablePass = function(event) {
 		var confirmation = window.confirm("Данное действие может привести к потере пароля пользователя.\nВы уверены что хотите изменить пароль?");
 		if (confirmation) {
 			$scope.disableEditPass = false;
-			 event.target.disabled = true;
-		}
-	}
-	
-	$scope.delAvatar = function(event, id) {
-		var confirmation = confirm("Вы действительно хотите удалить аватар?");
-		if (confirmation) {
-			$scope.users[id].avatar = "net-avatara.jpg";
 			event.target.disabled = true;
 		}
 	}
 	
-	$scope.currentId;
+	// Метод сброса текущего аватара и установка стандартного
+	$scope.delAvatar = function(id) {
+		var confirmation = confirm("Вы действительно хотите удалить аватар?");
+		if (confirmation) {
+			$scope.users[id].avatar = "net-avatara.jpg";
+		}
+	}
+	// Ставим watcher на поле с аватаром, если оно стандартное, блокируем кнопку сброса
+	$scope.delAvatarButton = false;
+	$scope.$watch("users[currentId].avatar", function(newValue) {
+		if (newValue == "net-avatara.jpg") {
+			$scope.delAvatarButton = true;
+		}
+	});
+	
+	// Устанавливаем watcher на копию поля users.pol и users.activation при ее изменении меняем данные и в scope
+	$scope.$watch("gender", function(newValue) {
+		if ($scope.currentId != undefined) {
+			$scope.users[$scope.currentId].pol = newValue.val;
+		}
+	});
+	
+	$scope.$watch("activated", function(newValue) {
+		if ($scope.currentId != undefined) {
+			$scope.users[$scope.currentId].activation = newValue.val;
+		}
+	});
+	
+	// Определяем массивы данных для select'ов
 	$scope.genders = [{ key: "Мужской", val: 1 }, { key: "Женский", val: 2 }];
 	$scope.activations = [{ key: "Не подтвержден", val: 0}, { key: "Подтвержден", val: 1 }];
 	if ($scope.currentId != undefined) {
 		$scope.gender = $scope.genders[($scope.users[$scope.currentId].pol == 1) ? 0 : 1];
 		$scope.activated = $scope.activations[$scope.users[$scope.currentId].activation];
+	}
+	
+	// Если мы работаем не с коллекцией данных и наследуемся от контроллера материалов
+	if ($scope.currentId != undefined && $scope.data != undefined) {
+		var authorIndex = searchObj.searchId($scope.users, $scope.data[$scope.currentId].author);
+		$scope.authorLogin = $scope.users[authorIndex];
+		
+		// Устанавливаем watcher на копию поля data.author при ее изменении меняем данные и в scope
+		$scope.$watch("authorLogin", function(newValue) {
+			$scope.data[$scope.currentId].author = newValue.id;
+		});
 	}
 	
 	$scope.$watch("users.length", function (newValue) {
@@ -225,40 +252,50 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 	
 	
 	$scope.goUpdate = function(id) {
-		$scope.currentId = searchObj.searchId($scope.users, id);
+		var currentId = searchObj.searchId($scope.users, id);	// Передаем index нашего пользователя в массиве текущему scope'у
 		$scope.$emit("changeRoute", {
 			route: "users_update",
-			id: $scope.currentId,
+			id: currentId,
 			notAnotherPage: true
 		});
 	}
 	
-	$scope.update = function(id) {
+	$scope.update = function() {
 		// Отправка данных на сервер
 		
-		var successMessage = "Страница <strong>\"" + $scope.users[id].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.users[id].title + "\"</strong> не обновлена.";
+		var successMessage = "Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> успешно обновлен.";
+		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> не обновлен.";
 		showSuccessMessage.show(successMessage);
 	}
 });
 
-var userGroups = [{ id: 1, title: "Администраторы", color: "orange" },
-				  { id: 2, title: "Сталкеры", color: "#E0E0E0" },
-				  { id: 3, title: "Пламя", color: "#6891FF" }];
-adminApp.controller("userGroupCtrl", function($scope, $rootScope, searchObj) {
+adminApp.controller("userGroupCtrl", function($scope, searchObj) {
 	$scope.groups = userGroups;
-	
-	var selectedId = searchObj.searchId($scope.groups, $scope.users[$rootScope.currentId].access);
-	$scope.selected = $scope.groups[selectedId];
-	
+	if ($scope.currentId != undefined) {
+		var selectedId = searchObj.searchId($scope.groups, $scope.users[$scope.currentId].access);
+		$scope.selected = $scope.groups[selectedId];
+		// Устанавливаем watcher на копию поля users.access при ее изменении меняем данные и в scope
+		$scope.$watch("selected", function(newValue) {
+				$scope.users[$scope.currentId].access = newValue.id;
+		});
+	}
 });
 
-var categories = [{ title: "Моды Сталкер", meta_d: "Модификации к игре сталкер", meta_k: "моды, дополнения" },
-				  { title: "Видеоуроки Сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "сервера, установка, сталкер, сетевая игра" },
-				  { title: "Фильмы сталкер", meta_d: "Видеоуроки по созданию серверов, по установке игры", meta_k: "фильмы , сталкер" }];		 
-adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage) {
-	$scope.categories = categories;
 
+adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
+	$scope.categories = categories;
+	
+	// Если мы работаем не с коллекцией данных и наследуемся от контроллера материалов
+	if ($scope.currentId != undefined && $scope.data != undefined) {
+		var selectedId = searchObj.searchId($scope.categories, $scope.data[$scope.currentId].cat);
+		$scope.selectedCat = $scope.categories[selectedId];
+		
+		// Устанавливаем watcher на копию поля data.cat при ее изменении меняем данные и в scope
+		$scope.$watch("selectedCat", function(newValue) {
+			$scope.data[$scope.currentId].cat = newValue.id;
+		});
+	}
+	
 	$scope.$watch("categories.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "categories",
@@ -268,19 +305,36 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту категорию?")) return;
-		var successMessage = "Категория <strong>\"" + $scope.categories[id].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[id].title + "\"</strong> не удалена.";
-		$scope.categories.splice(id, 1);
+		var currentId = searchObj.searchId($scope.categories, id);
+		var successMessage = "Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> не удалена.";
+		$scope.categories.splice(currentId, 1);
+		showSuccessMessage.show(successMessage);
+	}
+	
+	$scope.goUpdate = function(id) {
+		var currentId = searchObj.searchId($scope.categories, id);
+		$scope.$emit("changeRoute", {
+			route: "categories_update",
+			id: currentId,
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.update = function() {
+		// Отправка данных на сервер
+		
+		var successMessage = "Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> успешно обновлена.";
+		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> не обновлена.";
 		showSuccessMessage.show(successMessage);
 	}
 });
 
-var data = [{ title: "S.T.A.L.K.E.R - Зов Припяти", cat: "Игры Сталкер", meta_d: "Сталкер Зов Припяти", date: "03.10.2014" },
-		    { title: "Создание сервера для сетевой игры", cat: "Видеоуроки Сталкер", meta_d: "Пошаговая инструкция установки сервера для Сталкер Чистое Небо", date: "03.10.2014" },
-		    { title: "Локации и аномалии в Survarium", cat: "Survarium (Сурвариум)", meta_d: "Локации и аномалии в Survarium", date: "04.05.2014" }];
-adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.data = data;
-	
+	for (var i = 0; i < data.length; i++) {
+		$scope.data[i].date = new Date($scope.data[i].date);
+	}
 	$scope.$watch("data.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "dataItems",
@@ -290,16 +344,31 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
-		var successMessage = "Заметка <strong>\"" + $scope.data[id].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[id].title + "\"</strong> не удалена.";
-		$scope.data.splice(id, 1);
+		var currentId = searchObj.searchId($scope.data, id);
+		var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> не удалена.";
+		$scope.data.splice(currentId, 1);
+		showSuccessMessage.show(successMessage);
+	}
+	
+	$scope.goUpdate = function(id) {
+		var currentId = searchObj.searchId($scope.data, id);
+		$scope.$emit("changeRoute", {
+			route: "data_update",
+			id: currentId,
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.update = function() {
+		// Отправка данных на сервер
+		
+		var successMessage = "Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> успешно обновлена.";
+		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> не обновлена.";
 		showSuccessMessage.show(successMessage);
 	}
 });
 
-var news = [{ title: "Сталкер Мод «Flame-Zone»", date: "24.12.2014", typeName: "Новость" },
-		    { title: "Пикник на обочине. Хроника посещения", date: "14.04.2014", typeName: "Новость / Блог" },
-		    { title: "[Легенды Зоны] В петле", date: "28.04.2014", typeName: "Блог" }];
 adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage) {
 	$scope.news = news;
 	
@@ -319,9 +388,6 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-var players = [{ name: "Хитрец", scores: "500000", rangName: "Военачальник" },
-			   { name: "Клым", scores: "480000", rangName: "Командующий" },
-			   { name: "Дрoн", scores: "176375", rangName: "Бывалый Воин" }];
 adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage) {
 	$scope.players = players;
 	

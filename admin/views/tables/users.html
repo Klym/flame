@@ -21,13 +21,15 @@
                     <th>Логин</th>
                     <th>E-Mail</th>
                     <th>Группа</th>
+                    <th>Дата регистрации</th>
                     <th>Действие</th>
                   </tr>
               </thead>
                 <tr ng-repeat="user in users">
                     <td>{{user.login}}</td>
                     <td>{{user.email}}</td>
-                    <td>{{user.groupName}}</td>
+                    <td ng-controller="userGroupCtrl" define-user-group></td>
+                    <td>{{user.regDate}}</td>
                     <td style="text-align:center; vertical-align:middle;">
                     	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(user.id)"></span>
                         &nbsp;&nbsp;

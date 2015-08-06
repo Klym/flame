@@ -6,7 +6,7 @@
           </div>
           <div class="panel-body">
           	<div class="row">
-            	<form class="form-horizontal form" name="updateForm" ng-submit="update(currentId)">
+            	<form class="form-horizontal form" name="updateForm" ng-submit="update()">
                   <div class="form-group">
                     <label for="userLogin" class="col-sm-2 control-label">Логин</label>
                     <div class="col-sm-3">
@@ -53,9 +53,9 @@
                     </div>
                   </div>
                   <div class="form-group">
-                  	<label for="userRegDate" class="col-sm-2 control-label">Дата регистрации</label>
+                  	<label class="col-sm-2 control-label">Дата регистрации</label>
                     <div class="col-sm-5">
-                    	<input type="datetime-local" class="form-control" id="userRegDate" ng-model="users[currentId].regDate" required>
+                    	<div class="form-control-static">{{users[currentId].regDate}}</div>
                     </div>
                   </div>
                   <div class="form-group">
@@ -71,7 +71,7 @@
                     </div>
                     <div class"col-sm-1">
                     	<img src="../../avatars/{{users[currentId].avatar}}" class="avatar-sm">
-						<button type="button" class="btn btn-sm btn-warning rightBtn" ng-click="delAvatar($event, currentId)">Удалить</button>
+						<button type="button" ng-disabled="delAvatarButton" class="btn btn-sm btn-warning rightBtn" ng-click="delAvatar(currentId)">Удалить</button>
                     </div>
                   </div>
                   <div class="form-group">

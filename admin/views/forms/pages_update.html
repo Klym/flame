@@ -6,7 +6,7 @@
           </div>
           <div class="panel-body">
           	<div class="row">
-            	<form class="form-horizontal form" name="updateForm" ng-submit="update(currentId)">
+            	<form class="form-horizontal form" name="updateForm" ng-submit="update()">
                   <div class="form-group">
                     <label for="pageTitle" class="col-sm-2 control-label">Название</label>
                     <div class="col-sm-3">
@@ -16,7 +16,7 @@
                   <div class="form-group">
                     <label for="pageCode" class="col-sm-2 control-label">Страница</label>
                     <div class="col-sm-2">
-                      <input type="text" name="pageCode" class="form-control" id="pageCode" ng-model="pages[currentId].pageCode" required>
+                      <input type="text" name="pageCode" class="form-control" id="pageCode" ng-model="pages[currentId].page" required>
                     </div>
                   </div>
                   <div class="form-group">
