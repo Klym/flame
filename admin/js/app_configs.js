@@ -67,6 +67,22 @@ adminApp.directive("defineCat", function(searchObj) {
 	}
 });
 
+// Директива определения типа новости
+adminApp.directive("defineNewsType", function() {
+	return function(scope, element) {
+		var type = scope.types[scope.newsItem.type];
+		element.append(document.createTextNode(type));
+	}
+});
+
+// Директива определения ранга игрока
+adminApp.directive("definePlayerRang", function(searchObj) {
+	return function(scope, element) {
+		var rang = searchObj.searchId(scope.rangs, scope.player.rang);
+		element.append(document.createTextNode(scope.rangs[rang].rangName));
+	}
+});
+
 // Фильтр получающий массив админов
 adminApp.filter("getAdmins", function() {
 	return function (users) {

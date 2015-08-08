@@ -127,7 +127,7 @@
               <tr ng-repeat="newsNote in news | limitTo : limit">
                 <td>{{$index + 1}}</td>
                 <td>{{newsNote.title}}</td>
-                <td>{{newsNote.date}}</td>
+                <td>{{newsNote.date | date : "dd.MM.yyyy"}}</td>
               </tr>   
             </table>
             <button type="button" class="btn btn-xs btn-warning pull-right" data-page="news" ng-click="changeRoute()">Подробнее</button>
@@ -146,7 +146,7 @@
                   <tr>
                     <th>#</th>
                     <th>Имя</th>
-                    <th>Количество очков</th>
+                    <th>Очки</th>
                     <th>Ранг</th>
                   </tr>
               </thead>
@@ -154,7 +154,7 @@
                 <td>{{$index + 1}}</td>
                 <td>{{player.name}}</td>
                 <td>{{player.scores}}</td>
-                <td>{{player.rangName}}</td>
+                <td ng-controller="rangCtrl" define-player-rang></td>
               </tr>                 
             </table>
             <button type="button" class="btn btn-xs btn-warning pull-right" data-page="sostav" ng-click="changeRoute()">Подробнее</button>

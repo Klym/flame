@@ -174,7 +174,7 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 
 adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.users = users;
-	for (var i = 0; i < users.length; i++) {
+	for (var i = 0; i < $scope.users.length; i++) {
 		$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
 	}
 	// Метод активации поля изменения пароля
@@ -202,38 +202,10 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 		}
 	});
 	
-	// Устанавливаем watcher на копию поля users.pol и users.activation при ее изменении меняем данные и в scope
-	$scope.$watch("gender", function(newValue) {
-		if ($scope.currentId != undefined) {
-			$scope.users[$scope.currentId].pol = newValue.val;
-		}
-	});
-	
-	$scope.$watch("activated", function(newValue) {
-		if ($scope.currentId != undefined) {
-			$scope.users[$scope.currentId].activation = newValue.val;
-		}
-	});
-	
 	// Определяем массивы данных для select'ов
-	$scope.genders = [{ key: "Мужской", val: 1 }, { key: "Женский", val: 2 }];
-	$scope.activations = [{ key: "Не подтвержден", val: 0}, { key: "Подтвержден", val: 1 }];
-	if ($scope.currentId != undefined) {
-		$scope.gender = $scope.genders[($scope.users[$scope.currentId].pol == 1) ? 0 : 1];
-		$scope.activated = $scope.activations[$scope.users[$scope.currentId].activation];
-	}
-	
-	// Если мы работаем не с коллекцией данных и наследуемся от контроллера материалов
-	if ($scope.currentId != undefined && $scope.data != undefined) {
-		var authorIndex = searchObj.searchId($scope.users, $scope.data[$scope.currentId].author);
-		$scope.authorLogin = $scope.users[authorIndex];
+	$scope.genders = { 1: "Мужской", 2: "Женский" };
+	$scope.activations = [ "Не подтвержден", "Подтвержден" ];
 		
-		// Устанавливаем watcher на копию поля data.author при ее изменении меняем данные и в scope
-		$scope.$watch("authorLogin", function(newValue) {
-			$scope.data[$scope.currentId].author = newValue.id;
-		});
-	}
-	
 	$scope.$watch("users.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "users",
@@ -269,32 +241,13 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 	}
 });
 
-adminApp.controller("userGroupCtrl", function($scope, searchObj) {
+adminApp.controller("userGroupCtrl", function($scope) {
 	$scope.groups = userGroups;
-	if ($scope.currentId != undefined) {
-		var selectedId = searchObj.searchId($scope.groups, $scope.users[$scope.currentId].access);
-		$scope.selected = $scope.groups[selectedId];
-		// Устанавливаем watcher на копию поля users.access при ее изменении меняем данные и в scope
-		$scope.$watch("selected", function(newValue) {
-				$scope.users[$scope.currentId].access = newValue.id;
-		});
-	}
 });
 
 
 adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.categories = categories;
-	
-	// Если мы работаем не с коллекцией данных и наследуемся от контроллера материалов
-	if ($scope.currentId != undefined && $scope.data != undefined) {
-		var selectedId = searchObj.searchId($scope.categories, $scope.data[$scope.currentId].cat);
-		$scope.selectedCat = $scope.categories[selectedId];
-		
-		// Устанавливаем watcher на копию поля data.cat при ее изменении меняем данные и в scope
-		$scope.$watch("selectedCat", function(newValue) {
-			$scope.data[$scope.currentId].cat = newValue.id;
-		});
-	}
 	
 	$scope.$watch("categories.length", function (newValue) {
 		$scope.$emit("changeCount", {
@@ -332,7 +285,7 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 
 adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.data = data;
-	for (var i = 0; i < data.length; i++) {
+	for (var i = 0; i < $scope.data.length; i++) {
 		$scope.data[i].date = new Date($scope.data[i].date);
 	}
 	$scope.$watch("data.length", function (newValue) {
@@ -369,8 +322,13 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.news = news;
+	for (var i = 0; i < $scope.news.length; i++) {
+		$scope.news[i].date = new Date($scope.news[i].date);
+	}
+	// Типы новостей
+	$scope.types = { 1: "Новость", 2: "Новость / Блог", 3: "Блог"};
 	
 	$scope.$watch("news.length", function (newValue) {
 		$scope.$emit("changeCount", {
@@ -381,14 +339,32 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту новость?")) return;
-		var successMessage = "Новость <strong>\"" + $scope.news[id].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[id].title + "\"</strong> не удалена.";
-		$scope.news.splice(id, 1);
+		var currentId = searchObj.searchId($scope.news, id);
+		var successMessage = "Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> успешно удалена.";
+		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> не удалена.";
+		$scope.news.splice(currentId, 1);
+		showSuccessMessage.show(successMessage);
+	}
+	
+	$scope.goUpdate = function(id) {
+		var currentId = searchObj.searchId($scope.news, id);
+		$scope.$emit("changeRoute", {
+			route: "news_update",
+			id: currentId,
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.update = function() {
+		// Отправка данных на сервер
+		
+		var successMessage = "Новость <strong>\"" + $scope.news[$scope.currentId].title + "\"</strong> успешно обновлена.";
+		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[$scope.currentId].title + "\"</strong> не обновлена.";
 		showSuccessMessage.show(successMessage);
 	}
 });
 
-adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage) {
+adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
 	$scope.players = players;
 	
 	$scope.$watch("players.length", function (newValue) {
@@ -400,9 +376,46 @@ adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showError
 	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить этого игрока?")) return;
-		var successMessage = "Игрок <strong>\"" + $scope.players[id].name + "\"</strong> успешно удален.";
-		var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[id].name + "\"</strong> не удален.";
-		$scope.players.splice(id, 1);
+		var currentId = searchObj.searchId($scope.players, id);
+		var successMessage = "Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> успешно удален.";
+		var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> не удален.";
+		$scope.players.splice(currentId, 1);
 		showSuccessMessage.show(successMessage);
+	}
+	
+	$scope.goUpdate = function(id) {
+		var currentId = searchObj.searchId($scope.players, id);
+		$scope.$emit("changeRoute", {
+			route: "sostav_update",
+			id: currentId,
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.update = function() {
+		// Отправка данных на сервер
+		
+		var successMessage = "Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> успешно обновлены.";
+		var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> не обновлены.";
+		showSuccessMessage.show(successMessage);
+	}
+});
+
+adminApp.controller("rangCtrl", function($scope, searchObj) {
+	$scope.rangs = rangs;
+	
+	// Меняем очки при изменении ранга
+	$scope.changeScores = function(rangId) {
+		var rang = searchObj.searchId($scope.rangs, rangId);
+		$scope.players[$scope.currentId].scores = $scope.rangs[rang].minScores;
+	}
+	
+	// Меняем ранг при изменении очков
+	$scope.changeRang = function(newScores) {
+		for (var i = 0; i < $scope.rangs.length; i++) {
+			if (newScores >= $scope.rangs[i].minScores && newScores <= $scope.rangs[i].maxScores) {
+				$scope.players[$scope.currentId].rang = $scope.rangs[i].id;
+			}
+		}
 	}
 });

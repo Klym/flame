@@ -58,7 +58,7 @@ if (isset($id)) $player = getSostavInfo($id);
 								$i = 0;
 								while ($myrow2 = mysql_fetch_array($result2)) {
 									$i++;
-									$result_r = mysql_query("SELECT * FROM playerRangs WHERE rid='$myrow2[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error());
+									$result_r = mysql_query("SELECT * FROM playerRangs WHERE id='$myrow2[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error());
 									$myrow_r = mysql_fetch_array($result_r);
 									$dol = $myrow2['dol'];
 									list($dol1,$dol2,$dol3) = bitFlag($dol);

@@ -2,7 +2,7 @@
 	<div class="col-md-12">
     	<div class="panel panel-success" ng-controller="dataCtrl">
           <div class="panel-heading">
-              <h3 class="panel-title">Редактирование категорий</h3>
+              <h3 class="panel-title">Редактирование материалов</h3>
           </div>
           <div class="panel-body">
           	<div class="row">
@@ -15,8 +15,8 @@
                   </div>
                   <div class="form-group" ng-controller="categoryCtrl">
                   	<label for="dataCat" class="col-sm-2 control-label">Категория</label>
-                    <div class="col-sm-5">
-                    	<select class="form-control" id="dataCat"  ng-model="selectedCat" ng-options="category.title for category in categories track by category.id"></select>
+                    <div class="col-sm-3">
+                    	<select class="form-control" id="dataCat"  ng-model="data[currentId].cat" ng-options="category.id as category.title for category in categories"></select>
                     </div>
                   </div>
                   <div class="form-group">
@@ -43,10 +43,16 @@
                     	<input type="date" class="form-control" id="catDate" ng-model="data[currentId].date" required>
                     </div>
                   </div>
+				  <div class="form-group">
+                  	<label class="col-sm-2 control-label">Просмотров</label>
+                    <div class="col-sm-5">
+                    	<div class="form-control-static">{{data[currentId].view}}</div>
+                    </div>
+                  </div>
                   <div class="form-group"  ng-controller="userCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
-                    <div class="col-sm-3">
-                    	<select class="form-control" id="userGroup" ng-model="authorLogin" ng-options="user.login for user in (users | getAdmins) track by user.id"></select>
+                    <div class="col-sm-2">
+                    	<select class="form-control" id="userGroup" ng-model="data[currentId].author" ng-options="user.id as user.login for user in (users | getAdmins)"></select>
                     </div>
                   </div>
                   <div class="form-group">

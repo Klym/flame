@@ -24,7 +24,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="dataItem in data">
+                <tr ng-repeat="dataItem in data | orderBy: 'cat'">
                     <td>{{dataItem.title}}</td>
                     <td ng-controller="categoryCtrl" define-cat></td>
                     <td>{{dataItem.meta_d}}</td>

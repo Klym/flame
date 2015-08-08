@@ -19,18 +19,18 @@ function getSostavInfo($id) {
 		$result_dol = "$dol1,$dol2,$dol3";
 	}
 	
-	$result_rp = mysql_query("SELECT * FROM playerRangs WHERE rid='$myrow_podr[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать все поля из таблицы playerRangs в соответствии с рангом игрока
+	$result_rp = mysql_query("SELECT * FROM playerRangs WHERE id='$myrow_podr[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать все поля из таблицы playerRangs в соответствии с рангом игрока
 	$myrow_rp = mysql_fetch_array($result_rp); //Занести данные в массив
 	
 	$nextRang = $myrow_podr['rang'] + 1; //Следующий ранг который получит игрок
 	
-	$result_scores = mysql_query("SELECT minScores FROM playerRangs WHERE rid='$nextRang'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать минимальное количество очков следующего ранга
+	$result_scores = mysql_query("SELECT minScores FROM playerRangs WHERE id='$nextRang'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать минимальное количество очков следующего ранга
 	$myrow_scores = mysql_fetch_array($result_scores); //Занести данные в массив
 	
 	$nextRangScores = $myrow_scores['minScores']; //Минимальное количество очков следующего ранга
 	$scoresNeed = round($nextRangScores - $myrow_podr['scores'], 1); //Очки которые должен набрать игрок для получения следующего ранга
 	
-	$result_scores2 = mysql_query("SELECT minScores, maxScores FROM playerRangs WHERE rid='$myrow_podr[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать максимальное и минимальное количество очков ранга игрока
+	$result_scores2 = mysql_query("SELECT minScores, maxScores FROM playerRangs WHERE id='$myrow_podr[rang]'") or die("Запрос на выборку данных из базы не прошел. Напишите об этом администратору. E-mail: support@clan-flame.ru<br><strong>Код ошибки: </strong>".mysql_error()); //Достать максимальное и минимальное количество очков ранга игрока
 	$myrow_scores2 = mysql_fetch_array($result_scores2); //Занести данные в массив
 	
 	$minScores = $myrow_scores2['minScores']; //Минимальное количество очков

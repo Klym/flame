@@ -18,20 +18,22 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
+                  	<th>#</th>
                     <th>Имя</th>
                     <th>Очки</th>
                     <th>Ранг</th>
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="player in players">
+                <tr ng-repeat="player in players | orderBy: '-scores'">
+                	<td>{{$index + 1}}</td>
                     <td>{{player.name}}</td>
                     <td>{{player.scores}}</td>
-                    <td>{{player.rangName}}</td>
+                    <td ng-controller="rangCtrl" define-player-rang></td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit"></span>
+                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(player.id)"></span>
                         &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del($index)"></span>
+                        <span class="glyphicon glyphicon-trash edit" ng-click="del(player.id)"></span>
                     </td>
                 </tr>
             </table>

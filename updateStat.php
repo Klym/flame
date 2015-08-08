@@ -33,9 +33,9 @@ do {
 	}
 	// Занос последнего боя в базу и обновление ранга, очков бойца
 	$newScores += $myrow['scores'];
-	$result_sc = mysql_query("SELECT rid FROM playerRangs WHERE minScores <= '$newScores' AND maxScores >= '$newScores'");
+	$result_sc = mysql_query("SELECT id FROM playerRangs WHERE minScores <= '$newScores' AND maxScores >= '$newScores'");
 	$myrow_sc = mysql_fetch_array($result_sc);
-	$rang = $myrow_sc['rid'];
+	$rang = $myrow_sc['id'];
 	$update = mysql_query("UPDATE sostav SET scores = '$newScores', lastMatch = '$lastMatch[0]', rang = '$rang' WHERE id = '$myrow[id]'");
 } while($myrow = mysql_fetch_array($result));
 echo "200 OK";
