@@ -52,7 +52,7 @@
                   <div class="form-group"  ng-controller="userCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userGroup" ng-model="data[currentId].author" ng-options="user.id as user.login for user in (users | getAdmins)"></select>
+                    	<select class="form-control" id="userGroup" ng-model="data[currentId].author" ng-options="user.id as user.login for user in (users | filter : {access : 1})"></select>
                     </div>
                   </div>
                   <div class="form-group">

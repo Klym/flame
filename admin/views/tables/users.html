@@ -8,12 +8,8 @@
           	<div class="row">
                 <div class="col-md-2"><button type="button" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button></div>
                 <div class="col-md-1">
-                <select class="form-control" style="width:70px; padding:0 3px;">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                    <option>100</option>
-                </select><br></div>
+                	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select><br>
+                </div>
 	  		</div>
             <table class="table table-bordered table-hover">
               <thead>
@@ -25,7 +21,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="user in users">
+                <tr ng-repeat="user in users | getItems: { limit: limit, page: page - 1 }">
                     <td>{{user.login}}</td>
                     <td>{{user.email}}</td>
                     <td ng-controller="userGroupCtrl" define-user-group></td>
@@ -37,25 +33,7 @@
                     </td>
                 </tr>
             </table>
-            <nav class="pull-right">
-              <ul class="pagination">
-                <li class="disabled">
-                  <a href="#" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <li class="active"><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><a href="#">5</a></li>
-                <li>
-                  <a href="#" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
+            <ng-include src="'views/pagination.html'" ng-controller="paginationCtrl"></ng-include>
           </div>
         </div>
     </div>

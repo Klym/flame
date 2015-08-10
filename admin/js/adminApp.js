@@ -45,7 +45,7 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 		templateUrl: "views/forms/news_update.html"
 	});
 	
-	$routeProvider.when("/sostav", {
+	$routeProvider.when("/players", {
 		templateUrl: "views/tables/sostav.html"
 	});
 	
@@ -60,9 +60,15 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 
 // routeCtrl отвечает за маршрутизацию
 adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
-	$rootScope.limit = "3";				// Количество выводимых данных на главной
 	$rootScope.selectedPage = "main";	// Текущая страница
 	$rootScope.currentId;				// Текущий id данных
+	
+	$scope.limit = 3;						// Количество выводимых данных
+	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
+	
+	$scope.changeLimit = function(newLimit) {
+		$scope.limit = newLimit;
+	}
 	
 	// Перехватываем событие изменения страницы
 	$scope.$on("changeRoute", function(event, args) {
@@ -76,12 +82,20 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 		}
 	});
 	
+	$scope.$watch("selectedPage", function(newPage) {
+		$scope.limit = (newPage == "main") ? 3 : $scope.limits[0];
+	});
+	
 	// Запускаем событие изменения страницы, передаем в качестве параметра имя страницы
 	$scope.changeRoute = function() {
 		$scope.$emit("changeRoute", {
 			route: event.target.attributes["data-page"].value
 		});
 	}
+	
+	$scope.$on("changePage", function(event, args) {
+		$scope.page = args.page;
+	});
 });
 
 // navCtrl отвечает за панель навигации
@@ -135,6 +149,9 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 	$scope.$watch("pages.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "pages",
+			val: newValue
+		});
+		$scope.$broadcast("changeCount", {
 			val: newValue
 		});
     });
@@ -211,6 +228,9 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 			key: "users",
 			val: newValue
 		});
+		$scope.$broadcast("changeCount", {
+			val: newValue
+		});
     });
 	
 	$scope.del = function(id) {
@@ -254,6 +274,9 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 			key: "categories",
 			val: newValue
 		});
+		$scope.$broadcast("changeCount", {
+			val: newValue
+		});
     });
 	
 	$scope.del = function(id) {
@@ -291,6 +314,9 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 	$scope.$watch("data.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "dataItems",
+			val: newValue
+		});
+		$scope.$broadcast("changeCount", {
 			val: newValue
 		});
     });
@@ -335,6 +361,9 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 			key: "news",
 			val: newValue
 		});
+		$scope.$broadcast("changeCount", {
+			val: newValue
+		});
     });
 	
 	$scope.del = function(id) {
@@ -370,6 +399,9 @@ adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showError
 	$scope.$watch("players.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "players",
+			val: newValue
+		});
+		$scope.$broadcast("changeCount", {
 			val: newValue
 		});
     });
@@ -418,4 +450,48 @@ adminApp.controller("rangCtrl", function($scope, searchObj) {
 			}
 		}
 	}
+});
+
+adminApp.controller("paginationCtrl", function($scope) {
+	$scope.selected = 1;
+	$scope.$watch("limit", function(newLimit, oldLimit) {
+		if ($scope.selectedPage != "main" && newLimit != oldLimit) {
+			$scope.count = new Array(Math.ceil($scope[$scope.selectedPage].length / newLimit));
+			$scope.selected = 1;
+			if ($scope.count.length == 1) {
+				$scope.nextDis = "disabled";
+			}
+		}
+	});
+	$scope.$on("changeCount", function(event, args) {
+		$scope.count = new Array(Math.ceil(args.val / $scope.limit));
+		if ($scope.count.length == 1) {
+			$scope.nextDis = "disabled";
+		}
+	});
+	$scope.$watch("count.length", function() {
+		if ($scope.selected != 1) {
+			$scope.selected--;
+		}
+	});
+	$scope.changePage = function(index) {
+		$scope.selected = index;
+	}
+	$scope.$watch("selected", function(newPage) {
+		$scope.prevDis = newPage == 1 ? 'disabled' : '';
+		$scope.nextDis = $scope.selected == $scope.count.length ? 'disabled' : '';
+		$scope.$emit("changePage", {
+			page: newPage
+		});
+	});
+	$scope.nextPage = function() {
+		if ($scope.selected !=  $scope.count.length) {
+			$scope.selected++;
+		}
+	}
+	$scope.prevPage = function() {
+		if ($scope.selected != 1) {
+			$scope.selected--;
+		}
+	}	
 });

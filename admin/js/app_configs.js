@@ -83,19 +83,17 @@ adminApp.directive("definePlayerRang", function(searchObj) {
 	}
 });
 
-// Фильтр получающий массив админов
-adminApp.filter("getAdmins", function() {
-	return function (users) {
-		if (angular.isArray(users)) {
-			var filtered = [];
-			for (var i = 0; i < users.length; i++) {
-				if (users[i].access == 1) {
-					filtered.push(users[i]);				
-				}
+// Фильтр получающий массив данных в зависимости от выбранной страницы и количества
+adminApp.filter("getItems", function() {
+	return function (items, params) {
+		if (angular.isArray(items) && angular.isObject(params)) {
+			var temp = new Array(items.length);
+			for (var i = 0; i < temp.length; i++) {
+				temp[i] = items[i];
 			}
-			return filtered;
+			return temp.splice(params.limit * params.page, params.limit);
 		} else {
-			return users;
+			return items;
 		}
 	}
 });
