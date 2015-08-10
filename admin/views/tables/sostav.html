@@ -14,7 +14,6 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
-                  	<th>#</th>
                     <th>Имя</th>
                     <th>Очки</th>
                     <th>Ранг</th>
@@ -22,7 +21,6 @@
                   </tr>
               </thead>
                 <tr ng-repeat="player in players | orderBy: '-scores' | getItems: { limit: limit, page: page - 1 }">
-                	<td>{{$index + 1}}</td>
                     <td>{{player.name}}</td>
                     <td>{{player.scores}}</td>
                     <td ng-controller="rangCtrl" define-player-rang></td>

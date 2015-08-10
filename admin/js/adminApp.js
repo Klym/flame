@@ -66,6 +66,9 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 	$scope.limit = 3;						// Количество выводимых данных
 	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
 	
+	window.sessionStorage.setItem("nav", 1); // Записываем в харнилище значение страницы в pagination
+	
+	// Метод изменения количества выводимых данных
 	$scope.changeLimit = function(newLimit) {
 		$scope.limit = newLimit;
 	}
@@ -84,6 +87,7 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 	
 	$scope.$watch("selectedPage", function(newPage) {
 		$scope.limit = (newPage == "main") ? 3 : $scope.limits[0];
+		window.sessionStorage.nav = 1;
 	});
 	
 	// Запускаем событие изменения страницы, передаем в качестве параметра имя страницы
@@ -93,6 +97,7 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 		});
 	}
 	
+	// Отлавливаем событий переключения страницы. Будет использовано для фильтра данных
 	$scope.$on("changePage", function(event, args) {
 		$scope.page = args.page;
 	});
@@ -452,45 +457,71 @@ adminApp.controller("rangCtrl", function($scope, searchObj) {
 	}
 });
 
+// Контроллер отвечающий за постраничную навигацию
 adminApp.controller("paginationCtrl", function($scope) {
-	$scope.selected = 1;
+	// Читаем данные текущей страницы с хранилища
+	$scope.selected = window.sessionStorage.getItem("nav");
+	
+	// Ставим под наблюдение значение количества выводимых данных
 	$scope.$watch("limit", function(newLimit, oldLimit) {
 		if ($scope.selectedPage != "main" && newLimit != oldLimit) {
+			// При его изменении вычисляем количество страниц
 			$scope.count = new Array(Math.ceil($scope[$scope.selectedPage].length / newLimit));
 			$scope.selected = 1;
+			window.sessionStorage.nav = 1;
+			// Если страница одна блокируем кнопку след. страницы
 			if ($scope.count.length == 1) {
 				$scope.nextDis = "disabled";
 			}
 		}
 	});
+	
+	// Ловим событие изменения количествва данных
 	$scope.$on("changeCount", function(event, args) {
+		// Пересчитываем количество страниц
 		$scope.count = new Array(Math.ceil(args.val / $scope.limit));
+		// Если страница одна блокируем кнопку след. страницы
 		if ($scope.count.length == 1) {
 			$scope.nextDis = "disabled";
 		}
 	});
-	$scope.$watch("count.length", function() {
-		if ($scope.selected != 1) {
+	
+	// Если мы были на последней странице, а их количество изменилось, переставляем ее на 1 меньше
+	$scope.$watch("count.length", function(newCount) {
+		if ($scope.selected > newCount) {
 			$scope.selected--;
+			window.sessionStorage.nav--;
 		}
 	});
+	
+	// Метод изменения текущей страницы
 	$scope.changePage = function(index) {
 		$scope.selected = index;
+		window.sessionStorage.nav = index;
 	}
+	
+	// В зависимости от текущей страницы отпределяем классы конопок предыдущей и следующей страниц
 	$scope.$watch("selected", function(newPage) {
 		$scope.prevDis = newPage == 1 ? 'disabled' : '';
 		$scope.nextDis = $scope.selected == $scope.count.length ? 'disabled' : '';
+		// Отправляем событие переключения страницы. Будет использовано для фильтрации данных
 		$scope.$emit("changePage", {
 			page: newPage
 		});
 	});
+	
+	// Метод переходна на следующую страницу
 	$scope.nextPage = function() {
 		if ($scope.selected !=  $scope.count.length) {
+			window.sessionStorage.nav++;
 			$scope.selected++;
 		}
 	}
+	
+	// Метод переходна на предыдущую страницу
 	$scope.prevPage = function() {
 		if ($scope.selected != 1) {
+			window.sessionStorage.nav--;
 			$scope.selected--;
 		}
 	}	
