@@ -19,6 +19,27 @@ footer {
 	box-shadow:0px 0px 8px rgba(0,0,0,.3);
 }
 
+.table-hover th {
+	cursor:pointer;
+}
+
+.no_sort, .sort_back, .sort {
+	width:19px;
+	height:19px;
+}
+
+.no_sort {
+	background-image:url(../img/sort_both.png);
+}
+
+.sort {
+	background-image:url(../img/sort_asc.png);
+}
+
+.sort_back {
+	background-image:url(../img/sort_desc.png);
+}
+
 .form {
 	margin-left:12px;
 	margin-right:12px;

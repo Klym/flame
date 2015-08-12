@@ -2,11 +2,13 @@
 	<div class="col-md-12">
     	<div class="panel panel-success" ng-controller="pageCtrl">
           <div class="panel-heading">
-              <h3 class="panel-title">Редактирование страниц</h3>
+              <h3 class="panel-title">Редактирование страницы</h3>
           </div>
           <div class="panel-body">
           	<div class="row">
-                <div class="col-md-2"><button type="button" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button></div>
+                <div class="col-md-2">
+                	<button type="button" ng-click="goAdd()" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+                </div>
                 <div class="col-md-1">
                 	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select><br>
                 </div>
@@ -14,13 +16,13 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
-                    <th>Название</th>
-                    <th>Описание</th>
-                    <th>Страница</th>
+                    <th ng-repeat="header in sorts" ng-click="changeSort($index)">
+                    	{{header.name}} <span class="pull-right" ng-class="sortClass[$index]"></span>
+                    </th>
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="page in pages | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="page in pages | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
                     <td>{{page.title}}</td>
                     <td>{{page.meta_d}}</td>
                     <td>{{page.page}}</td>

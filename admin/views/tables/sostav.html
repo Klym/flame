@@ -6,7 +6,9 @@
           </div>
           <div class="panel-body">
           	<div class="row">
-                <div class="col-md-2"><button type="button" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button></div>
+                <div class="col-md-2">
+                	<button type="button" ng-click="goAdd()" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+                </div>
                 <div class="col-md-1">
                 	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select><br>
                 </div>
@@ -14,13 +16,13 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
-                    <th>Имя</th>
-                    <th>Очки</th>
-                    <th>Ранг</th>
+                    <th ng-repeat="header in sorts" ng-click="changeSort($index)">
+                    	{{header.name}} <span class="pull-right" ng-class="sortClass[$index]"></span>
+                    </th>
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="player in players | orderBy: '-scores' | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="player in players | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
                     <td>{{player.name}}</td>
                     <td>{{player.scores}}</td>
                     <td ng-controller="rangCtrl" define-player-rang></td>

@@ -6,7 +6,9 @@
           </div>
           <div class="panel-body">
           	<div class="row">
-                <div class="col-md-2"><button type="button" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button></div>
+                <div class="col-md-2">
+                	<button type="button" ng-click="goAdd()" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button>
+                </div>
                 <div class="col-md-1">
                 	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select><br>
                 </div>
@@ -14,18 +16,17 @@
             <table class="table table-bordered table-hover">
               <thead>
                   <tr>
-                    <th>Логин</th>
-                    <th>E-Mail</th>
-                    <th>Группа</th>
-                    <th>Дата регистрации</th>
+                    <th ng-repeat="header in sorts" ng-click="changeSort($index)">
+                    	{{header.name}} <span class="pull-right" ng-class="sortClass[$index]"></span>
+                    </th>
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="user in users | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="user in users | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
                     <td>{{user.login}}</td>
                     <td>{{user.email}}</td>
                     <td ng-controller="userGroupCtrl" define-user-group></td>
-                    <td>{{user.regDate}}</td>
+                    <td>{{user.regDate | date: "yyyy-MM-dd HH:mm:ss"}}</td>
                     <td style="text-align:center; vertical-align:middle;">
                     	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(user.id)"></span>
                         &nbsp;&nbsp;

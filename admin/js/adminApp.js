@@ -9,12 +9,20 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 		templateUrl: "views/tables/pages.html"
 	});
 	
+	$routeProvider.when("/pages_add", {
+		templateUrl: "views/forms/pages_add.html"
+	});
+	
 	$routeProvider.when("/pages_update", {
 		templateUrl: "views/forms/pages_update.html"
 	});
 	
 	$routeProvider.when("/users", {
 		templateUrl: "views/tables/users.html"
+	});
+	
+	$routeProvider.when("/users_add", {
+		templateUrl: "views/forms/users_add.html"
 	});
 	
 	$routeProvider.when("/users_update", {
@@ -25,12 +33,20 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 		templateUrl: "views/tables/categories.html"
 	});
 	
+	$routeProvider.when("/categories_add", {
+		templateUrl: "views/forms/categories_add.html"
+	});
+	
 	$routeProvider.when("/categories_update", {
 		templateUrl: "views/forms/categories_update.html"
 	});
 	
 	$routeProvider.when("/data", {
 		templateUrl: "views/tables/data.html"
+	});
+	
+	$routeProvider.when("/data_add", {
+		templateUrl: "views/forms/data_add.html"
 	});
 	
 	$routeProvider.when("/data_update", {
@@ -41,12 +57,20 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 		templateUrl: "views/tables/news.html"
 	});
 	
+	$routeProvider.when("/news_add", {
+		templateUrl: "views/forms/news_add.html"
+	});
+	
 	$routeProvider.when("/news_update", {
 		templateUrl: "views/forms/news_update.html"
 	});
 	
 	$routeProvider.when("/players", {
 		templateUrl: "views/tables/sostav.html"
+	});
+	
+	$routeProvider.when("/sostav_add", {
+		templateUrl: "views/forms/sostav_add.html"
 	});
 	
 	$routeProvider.when("/sostav_update", {
@@ -66,7 +90,9 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 	$scope.limit = 3;						// Количество выводимых данных
 	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
 	
-	window.sessionStorage.setItem("nav", 1); // Записываем в харнилище значение страницы в pagination
+	// Записываем в харнилище значение страницы в pagination и свойство сортировки
+	window.sessionStorage.setItem("nav", 1);
+	window.sessionStorage.setItem("sort",  "+id");
 	
 	// Метод изменения количества выводимых данных
 	$scope.changeLimit = function(newLimit) {
@@ -88,6 +114,7 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
 	$scope.$watch("selectedPage", function(newPage) {
 		$scope.limit = (newPage == "main") ? 3 : $scope.limits[0];
 		window.sessionStorage.nav = 1;
+		window.sessionStorage.sort = "+id";
 	});
 	
 	// Запускаем событие изменения страницы, передаем в качестве параметра имя страницы
@@ -143,12 +170,26 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 
 // Контроллеры, отвечающие за логику данных.
 
-adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.pages = pages;
 	// Получаем данные AJAX'ом
 	/*$http.get("test.json").success(function(data) {
 		$scope.pages = data;
 	});*/
+	
+	// Заголовки таблицы
+	$scope.sorts = [{ code: "title", name: "Название" }, { code: "meta_d", name: "Описание" }, { code: "page", name: "Страница" }];
+	
+	// Устанавливаем классы для заголовков таблицы
+	changeSortService.setSortClasses($scope.sorts);
+	$scope.sortClass = changeSortService.sortClass;
+	
+	// Метод изменения типа и порядка сортировки
+	$scope.changeSort = function(propNum) {
+		changeSortService.changeSort(propNum);
+		$scope.sortProp = changeSortService.sortProp;
+	}
+
 	
 	// Устанавливаем наблюдение за длинной массива данных, при его изменении отправляем новое значение контроллеру навигации
 	$scope.$watch("pages.length", function (newValue) {
@@ -174,6 +215,27 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 		showSuccessMessage.show(successMessage);
 	}
 	
+	// Метод перенавправления на страницу добавления данных
+	$scope.goAdd = function() {
+		$scope.block = false;	// Блок кнопки
+		
+		$scope.$emit("changeRoute", {
+			route: "pages_add",
+			notAnotherPage: true
+		});
+	}
+	
+	// Метод добавления новых данных
+	$scope.add = function() {
+		$scope.pages.push($scope.newPage);	// Запихиваем данные в стэк
+		$scope.block = true;				// Блокируем кнопку
+		// Отправляем данные на сервер
+		
+		var successMessage = "Страница <strong>\"" + $scope.newPage.title + "\"</strong> успешно добавлена.";
+		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.newPage.title + "\"</strong> не добавлена.";
+		showSuccessMessage.show(successMessage);
+	}
+	
 	// Метод перенаправления на страницу редактирования данных
 	$scope.goUpdate = function(id) {
 		var currentId = searchObj.searchId($scope.pages, id);
@@ -194,11 +256,23 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 	}
 });
 
-adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.users = users;
 	for (var i = 0; i < $scope.users.length; i++) {
+		$scope.users[i].regDate = new Date($scope.users[i].regDate);
 		$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
 	}
+	
+	$scope.sorts = [{ code: "login", name: "Логин" }, { code: "email", name: "E-Mail" }, { code: "access", name: "Группа" }, { code: "regDate", name: "Дата регистрации" }];
+	
+	changeSortService.setSortClasses($scope.sorts);
+	$scope.sortClass = changeSortService.sortClass;
+		
+	$scope.changeSort = function(propNum) {
+		changeSortService.changeSort(propNum);
+		$scope.sortProp = changeSortService.sortProp;
+	}
+	
 	// Метод активации поля изменения пароля
 	$scope.disableEditPass = true;
 	$scope.enablePass = function(event) {
@@ -238,6 +312,30 @@ adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, show
 		});
     });
 	
+	// Стандартные данные нового пользователя
+	$scope.newUser = { access: 2, pol: 1, avatar: "net-avatara.jpg", activation: 1 };
+
+	$scope.goAdd = function() {
+		$scope.block = false;
+		
+		$scope.$emit("changeRoute", {
+			route: "users_add",
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.add = function() {
+		$scope.newUser.regDate = new Date();
+		$scope.newUser.password = MD5($scope.newUser.password); // Шифруем пароль
+		$scope.users.push($scope.newUser);
+		$scope.block = true;
+		// Отправляем данные на сервер
+		
+		var successMessage = "Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> успешно зарегистрирован.";
+		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> не зарегистрирован.";
+		showSuccessMessage.show(successMessage);
+	}
+	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить этого пользователя?")) return;
 		var currentId = searchObj.searchId($scope.users, id);
@@ -271,8 +369,21 @@ adminApp.controller("userGroupCtrl", function($scope) {
 });
 
 
-adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.categories = categories;
+	
+	// Удостоверимся что мы не наследуемся от контроллера data
+	if ($scope.data == undefined) {
+		$scope.sorts = [{ code: "title", name: "Название" }, { code: "meta_d", name: "Описание" }, { code: "meta_k", name: "Ключевые слова" }];
+		
+		changeSortService.setSortClasses($scope.sorts);
+		$scope.sortClass = changeSortService.sortClass;
+			
+		$scope.changeSort = function(propNum) {
+			changeSortService.changeSort(propNum);
+			$scope.sortProp = changeSortService.sortProp;
+		}
+	}
 	
 	$scope.$watch("categories.length", function (newValue) {
 		$scope.$emit("changeCount", {
@@ -311,11 +422,22 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 	}
 });
 
-adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.data = data;
 	for (var i = 0; i < $scope.data.length; i++) {
 		$scope.data[i].date = new Date($scope.data[i].date);
 	}
+	
+	$scope.sorts = [{ code: "title", name: "Название" },  { code: "cat", name: "Категория" }, { code: "meta_d", name: "Описание" }];
+	
+	changeSortService.setSortClasses($scope.sorts);
+	$scope.sortClass = changeSortService.sortClass;
+		
+	$scope.changeSort = function(propNum) {
+		changeSortService.changeSort(propNum);
+		$scope.sortProp = changeSortService.sortProp;
+	}
+	
 	$scope.$watch("data.length", function (newValue) {
 		$scope.$emit("changeCount", {
 			key: "dataItems",
@@ -353,11 +475,22 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.news = news;
 	for (var i = 0; i < $scope.news.length; i++) {
 		$scope.news[i].date = new Date($scope.news[i].date);
 	}
+	
+	$scope.sorts = [{ code: "title", name: "Название" },  { code: "date", name: "Дата" }, { code: "type", name: "Тип" }];
+	
+	changeSortService.setSortClasses($scope.sorts);
+	$scope.sortClass = changeSortService.sortClass;
+		
+	$scope.changeSort = function(propNum) {
+		changeSortService.changeSort(propNum);
+		$scope.sortProp = changeSortService.sortProp;
+	}
+	
 	// Типы новостей
 	$scope.types = { 1: "Новость", 2: "Новость / Блог", 3: "Блог"};
 	
@@ -398,8 +531,18 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj) {
+adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.players = players;
+	
+	$scope.sorts = [{ code: "name", name: "Имя" },  { code: "scores", name: "Очки" }, { code: "rang", name: "Ранг" }];
+	
+	changeSortService.setSortClasses($scope.sorts);
+	$scope.sortClass = changeSortService.sortClass;
+		
+	$scope.changeSort = function(propNum) {
+		changeSortService.changeSort(propNum);
+		$scope.sortProp = changeSortService.sortProp;
+	}
 	
 	$scope.$watch("players.length", function (newValue) {
 		$scope.$emit("changeCount", {
