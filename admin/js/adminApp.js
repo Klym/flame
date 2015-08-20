@@ -2,7 +2,7 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 .config(function($routeProvider, $locationProvider) {
 	// Разрешаем изменять url без перезагрузки страницы
 	$locationProvider.html5Mode(true);
-	
+		
 	// Подгружаем выбранную страницу
 	
 	$routeProvider.when("/pages", {
@@ -83,12 +83,14 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 });
 
 // routeCtrl отвечает за маршрутизацию
-adminApp.controller("routeCtrl", function($scope, $location, $rootScope) {
+adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheFactory) {
 	$rootScope.selectedPage = "main";	// Текущая страница
 	$rootScope.currentId;				// Текущий id данных
 	
 	$scope.limit = 3;						// Количество выводимых данных
 	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
+	
+	$cacheFactory("dataCache");		// Создаем кэш для хранения данных из БД
 	
 	// Записываем в харнилище значение страницы в pagination и свойство сортировки
 	window.sessionStorage.setItem("nav", 1);
@@ -531,8 +533,25 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	$scope.players = players;
+adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	// Получаем кэш с данными
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("players") != undefined) { // Проверяем есть ли там данные и достаем их
+		$scope.players = JSON.parse(cache.get("players"));
+		
+		// Преобразование всех числовых данных представленных строками в числа
+		for (var i = 0; i < $scope.players.length; i++) {
+			$scope.players[i].scores = parseFloat($scope.players[i].scores);
+			$scope.players[i].rang = parseInt($scope.players[i].rang);
+		}
+	} else {
+		// Иначе посылаем запрос на сервер и заносим данные в кэш
+		$http.get("getData.php?type=sostav").success(function(response) {
+			$scope.players = response;
+			cache.put("players", JSON.stringify(response));
+		});
+	}
 	
 	$scope.sorts = [{ code: "name", name: "Имя" },  { code: "scores", name: "Очки" }, { code: "rang", name: "Ранг" }];
 	
@@ -544,7 +563,7 @@ adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showError
 		$scope.sortProp = changeSortService.sortProp;
 	}
 	
-	$scope.$watch("players.length", function (newValue) {
+	$scope.$watch("players.length", function(newValue) {
 		$scope.$emit("changeCount", {
 			key: "players",
 			val: newValue
@@ -560,8 +579,11 @@ adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showError
 		var successMessage = "Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> успешно удален.";
 		var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> не удален.";
 		$scope.players.splice(currentId, 1);
+		cache.put("players", JSON.stringify($scope.players));
 		showSuccessMessage.show(successMessage);
 	}
+	
+	$scope.updateButtonDisable = false;
 	
 	$scope.goUpdate = function(id) {
 		var currentId = searchObj.searchId($scope.players, id);
@@ -573,11 +595,30 @@ adminApp.controller("sostavCtrl", function($scope, showSuccessMessage, showError
 	}
 	
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.updateButtonDisable = true;
 		
-		var successMessage = "Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> успешно обновлены.";
-		var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> не обновлены.";
-		showSuccessMessage.show(successMessage);
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php", JSON.stringify($scope.players[$scope.currentId]));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			console.log(response.data.result);
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.updateButtonDisable = false;
+				cache.put("players", JSON.stringify($scope.players));
+				var successMessage = "Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> успешно обновлены.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.updateButtonDisable = false;
+			var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> не обновлены.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 });
 
