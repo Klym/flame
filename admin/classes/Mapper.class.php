@@ -20,7 +20,7 @@ abstract class Mapper {
 	function findAll() {
 		$result = $this->selectAllStmt()->execute(array());
 		if (!$result) {
-			throw new Exception("Ошибка базы данных");
+			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
 		}
 		$this->selectAllStmt()->setFetchMode(PDO::FETCH_ASSOC);
 		while($fetch = $this->selectAllStmt()->fetch()) {
@@ -28,7 +28,7 @@ abstract class Mapper {
 		}
 		return json_encode($rows);
 	}
-		
+	
 	function createObject($array) {
 		$obj = $this->doCreateObject($array);
 		return $obj;
@@ -36,6 +36,13 @@ abstract class Mapper {
 	
 	function insert(DomainObject $obj) {
 		$this->doInsert($obj);
+	}
+	
+	function delete($id) {
+		$this->deleteStmt()->execute(array($id));
+		if ($this->deleteStmt()->rowCount() == 0) {
+			throw new Exception("Ошибка. Данные не могут быть удалены");
+		}
 	}
 	
 	abstract function update(DomainObject $obj);

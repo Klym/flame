@@ -4,13 +4,25 @@ require("blocks/autoload.php");
 require("blocks/db.php");
 
 $rawPost = file_get_contents("php://input");
-
+if (!$rawPost) {
+	die(json_encode(array("result" => "Данные не были переданы")));
+}
 $data = json_decode($rawPost);
 
-$mapper = new SostavMapper($pdo);
-$object = $mapper->find($data->id);
+if (isset($_GET['type']) && !empty($_GET['type'])) {
+	$type = $_GET['type'];
+	
+	switch($type) {
+		case "sostav":
+			$mapper = new SostavMapper($pdo);
+			$object = new Sostav($data->id, $data->name, $data->scores, $data->rang, $data->dol, $data->fullName, $data->skype);
+		break;
+		default:
+			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
+		break;
+	}
+}
 
-$object = new Sostav($data->id, $data->name, $data->scores, $data->rang, $data->dol, $data->fullName, $data->skype);
 try {
 	$mapper->update($object);
 } catch(Exception $e) {

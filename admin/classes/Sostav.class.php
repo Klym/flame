@@ -8,7 +8,7 @@ class Sostav extends DomainObject {
 	private $fullName;
 	private $skype;
 	
-	function __construct($id, $name, $scores, $rang, $dol, $fullName, $skype) {
+	function __construct($id = null, $name, $scores, $rang, $dol, $fullName, $skype) {
 		parent::__construct($id);
 		$this->name = $name;
 		$this->scores = $scores;

@@ -3,7 +3,8 @@
 require("blocks/autoload.php");
 require("blocks/db.php");
 
-if (isset($_GET['type']) && !empty($_GET['type'])) {
+if (isset($_GET['type']) && !empty($_GET['type']) && isset($_GET['id']) && !empty($_GET['id'])) {
+	$id = $_GET['id'];
 	$type = $_GET['type'];
 	
 	switch($type) {
@@ -12,15 +13,15 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 		break;
 		default:
 			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
-		break;	
+		break;
 	}
 }
 try {
-	$data = $mapper->findAll();
+	$mapper->delete($id);
 } catch(Exception $e) {
 	die(json_encode(array("result" => $e->getMessage())));
 }
 
-echo $data;
+echo json_encode(array("result" => "200 OK"));
 
 ?>

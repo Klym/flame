@@ -573,17 +573,73 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 		});
     });
 	
-	$scope.del = function(id) {
-		if (!confirm("Вы дейстивтельно хотите удалить этого игрока?")) return;
-		var currentId = searchObj.searchId($scope.players, id);
-		var successMessage = "Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> успешно удален.";
-		var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> не удален.";
-		$scope.players.splice(currentId, 1);
-		cache.put("players", JSON.stringify($scope.players));
-		showSuccessMessage.show(successMessage);
+	$scope.buttonDisable = false;
+	
+	$scope.newPlayer = { scores: 0, rang: 1, dol: 8 };
+	
+	$scope.goAdd = function() {
+		$scope.$emit("changeRoute", {
+			route: "sostav_add",
+			notAnotherPage: true
+		});
 	}
 	
-	$scope.updateButtonDisable = false;
+	$scope.add = function() {
+		$scope.players.push($scope.newPlayer);
+		$scope.buttonDisable = true;
+		
+		// Отправляем данные на сервер
+		var promise = $http.post("putData.php?type=sostav", JSON.stringify($scope.newPlayer));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			// Ожидаем от сервера возврат идентификатора нового объекта
+			if (isNaN(response.data.result)) {
+				console.log(response.data);
+				rejected();
+			} else {
+				// Устанавливаем id добавленному объекту
+				$scope.players[$scope.players.length - 1].id = parseInt(response.data.result);
+				cache.put("players", JSON.stringify($scope.players));
+				var successMessage = "Игрок <strong>\"" + $scope.newPlayer.name + "\"</strong> успешно добавлен.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.newPlayer.name + "\"</strong> не добавлен.";
+			showErrorMessage.show(errorMessage);
+		}
+	}
+	
+	$scope.del = function(id) {
+		if ($scope.buttonDisable) return;
+		if (!confirm("Вы дейстивтельно хотите удалить этого игрока?")) return;
+		var currentId = searchObj.searchId($scope.players, id);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=sostav");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> успешно удален.";
+				$scope.players.splice(currentId, 1);
+				cache.put("players", JSON.stringify($scope.players));
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> не удален.";
+			showErrorMessage.show(errorMessage);
+		}		
+	}
 	
 	$scope.goUpdate = function(id) {
 		var currentId = searchObj.searchId($scope.players, id);
@@ -595,19 +651,17 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 	}
 	
 	$scope.update = function() {
-		$scope.updateButtonDisable = true;
-		
+		$scope.buttonDisable = true;
 		// Отправка данных на сервер и помещение в кэш
-		var promise = $http.post("updateData.php", JSON.stringify($scope.players[$scope.currentId]));
+		var promise = $http.post("updateData.php?type=sostav", JSON.stringify($scope.players[$scope.currentId]));
 		promise.then(fulfilled, rejected);
 		
 		function fulfilled(response) {
-			console.log(response.data.result);
 			if (response.data.result != "200 OK") {
 				console.log(response.data);
 				rejected();
 			} else {
-				$scope.updateButtonDisable = false;
+				$scope.buttonDisable = false;
 				cache.put("players", JSON.stringify($scope.players));
 				var successMessage = "Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> успешно обновлены.";
 				showSuccessMessage.show(successMessage);
@@ -615,7 +669,7 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 		}
 		
 		function rejected() {
-			$scope.updateButtonDisable = false;
+			$scope.buttonDisable = false;
 			var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> не обновлены.";
 			showErrorMessage.show(errorMessage);
 		}
