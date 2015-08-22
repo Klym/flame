@@ -7,10 +7,12 @@ abstract class Mapper {
 		$this->PDO = $pdo;
 	}
 	
+	protected abstract function doCreateObject(array $array);
+	
 	function find($id) {
-		$this->selectStmt()->execute(array($id));
-		$array = $this->selectStmt()->fetch();
-		$this->selectStmt()->closeCursor();
+		$this->selectStmt->execute(array($id));
+		$array = $this->selectStmt->fetch();
+		$this->selectStmt->closeCursor();
 		if (!is_array($array)) return null;
 		if (!isset($array["id"])) return null;
 		$object = $this->createObject($array);
@@ -18,12 +20,12 @@ abstract class Mapper {
 	}
 	
 	function findAll() {
-		$result = $this->selectAllStmt()->execute(array());
+		$result = $this->selectAllStmt->execute(array());
 		if (!$result) {
 			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
 		}
-		$this->selectAllStmt()->setFetchMode(PDO::FETCH_ASSOC);
-		while($fetch = $this->selectAllStmt()->fetch()) {
+		$this->selectAllStmt->setFetchMode(PDO::FETCH_ASSOC);
+		while($fetch = $this->selectAllStmt->fetch()) {
 			$rows[] = $fetch;
 		}
 		return json_encode($rows);
@@ -35,20 +37,30 @@ abstract class Mapper {
 	}
 	
 	function insert(DomainObject $obj) {
-		$this->doInsert($obj);
+		$values = $obj->getValues();
+		$result = $this->insertStmt->execute($values);
+		if (!$result) {
+			throw new Exception("Ошибка. Данные не могут быть добавлены");
+		}
+		$id = $this->PDO->lastInsertId();
+		$obj->setId($id);
 	}
 	
-	function delete($id) {
-		$this->deleteStmt()->execute(array($id));
-		if ($this->deleteStmt()->rowCount() == 0) {
-			throw new Exception("Ошибка. Данные не могут быть удалены");
+	function update(DomainObject $object) {
+		$values = $object->getValues();
+		array_push($values, $object->getId());
+		$this->updateStmt->execute($values);
+		if ($this->updateStmt->rowCount() == 0) {
+			throw new Exception("Ошибка. Данные не могут быть обновлены");
 		}
 	}
 	
-	abstract function update(DomainObject $obj);
-	protected abstract function doCreateObject(array $array);
-	protected abstract function doInsert(DomainObject $object);
-	protected abstract function selectStmt();
+	function delete($id) {
+		$this->deleteStmt->execute(array($id));
+		if ($this->deleteStmt->rowCount() == 0) {
+			throw new Exception("Ошибка. Данные не могут быть удалены");
+		}
+	}
 }
 
 ?>

@@ -22,7 +22,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="category in categories | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="category in categories | getItems: { limit: limit, page: page - 1 } | orderBy: sortProp">
                     <td>{{category.title}}</td>
                     <td>{{category.meta_d}}</td>
                     <td>{{category.meta_k}}</td>

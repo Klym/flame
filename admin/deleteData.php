@@ -8,6 +8,9 @@ if (isset($_GET['type']) && !empty($_GET['type']) && isset($_GET['id']) && !empt
 	$type = $_GET['type'];
 	
 	switch($type) {
+		case "categories":
+			$mapper = new CategoryMapper($pdo);
+		break;
 		case "sostav":
 			$mapper = new SostavMapper($pdo);
 		break;

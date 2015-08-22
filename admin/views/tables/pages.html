@@ -22,7 +22,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="page in pages | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="page in pages | getItems: { limit: limit, page: page - 1 } | orderBy: sortProp">
                     <td>{{page.title}}</td>
                     <td>{{page.meta_d}}</td>
                     <td>{{page.page}}</td>

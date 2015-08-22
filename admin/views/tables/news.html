@@ -22,7 +22,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="newsItem in news | orderBy: sortProp | getItems: { limit: limit, page: page - 1 }">
+                <tr ng-repeat="newsItem in news | getItems: { limit: limit, page: page - 1 } | orderBy: sortProp">
                     <td>{{newsItem.title}}</td>
                     <td>{{newsItem.date | date : "dd.MM.yyyy"}}</td>
                     <td define-news-type></td>

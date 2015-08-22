@@ -371,8 +371,20 @@ adminApp.controller("userGroupCtrl", function($scope) {
 });
 
 
-adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	$scope.categories = categories;
+adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("categories") != undefined) {
+		$scope.categories = JSON.parse(cache.get("categories"));
+		for (var i = 0; i < $scope.categories.length; i++) {
+			$scope.categories[i].id = parseInt($scope.categories[i].id);
+		}
+	} else {
+		$http.get("getData.php?type=categories").success(function(response) {
+			$scope.categories = response;
+			cache.put("categories", JSON.stringify(response));
+		});
+	}
 	
 	// Удостоверимся что мы не наследуемся от контроллера data
 	if ($scope.data == undefined) {
@@ -397,16 +409,75 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 		});
     });
 	
+	$scope.newCategory = {};
+	$scope.buttonDisable = false;
+	
+	$scope.goAdd = function() {
+		$scope.$emit("changeRoute", {
+			route: "categories_add",
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.add = function() {
+		$scope.categories.push($scope.newCategory);
+		$scope.buttonDisable = true;
+		
+		// Отправляем данные на сервер
+		var promise = $http.post("putData.php?type=categories", JSON.stringify($scope.newCategory));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			// Ожидаем от сервера возврат идентификатора нового объекта
+			if (isNaN(response.data.result)) {
+				console.log(response.data);
+				rejected();
+			} else {
+				// Устанавливаем id добавленному объекту
+				$scope.categories[$scope.categories.length - 1].id = parseInt(response.data.result);
+				cache.put("categories", JSON.stringify($scope.categories));
+				var successMessage = "Категория <strong>\"" + $scope.newCategory.title + "\"</strong> успешно добавлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			var errorMessage = "Ошибка! Категория <strong>\"" + $scope.newCategory.title + "\"</strong> не добавлена.";
+			showErrorMessage.show(errorMessage);
+		}
+	}
+	
 	$scope.del = function(id) {
+		if ($scope.buttonDisable) return;
 		if (!confirm("Вы дейстивтельно хотите удалить эту категорию?")) return;
 		var currentId = searchObj.searchId($scope.categories, id);
-		var successMessage = "Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> не удалена.";
-		$scope.categories.splice(currentId, 1);
-		showSuccessMessage.show(successMessage);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=categories");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> успешно удалена.";
+				$scope.categories.splice(currentId, 1);
+				cache.put("categories", JSON.stringify($scope.categories));
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> не удалена.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 	
 	$scope.goUpdate = function(id) {
+		if ($scope.buttonDisable) return;
 		var currentId = searchObj.searchId($scope.categories, id);
 		$scope.$emit("changeRoute", {
 			route: "categories_update",
@@ -416,11 +487,28 @@ adminApp.controller("categoryCtrl", function($scope, showSuccessMessage, showErr
 	}
 	
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.buttonDisable = true;
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php?type=categories", JSON.stringify($scope.categories[$scope.currentId]));
+		promise.then(fulfilled, rejected);
 		
-		var successMessage = "Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> не обновлена.";
-		showSuccessMessage.show(successMessage);
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				cache.put("categories", JSON.stringify($scope.categories));
+				var successMessage = "Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> успешно обновлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> не обновлена.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 });
 
@@ -638,10 +726,11 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 			$scope.buttonDisable = false;
 			var errorMessage = "Ошибка! Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> не удален.";
 			showErrorMessage.show(errorMessage);
-		}		
+		}
 	}
 	
 	$scope.goUpdate = function(id) {
+		if ($scope.buttonDisable) return;
 		var currentId = searchObj.searchId($scope.players, id);
 		$scope.$emit("changeRoute", {
 			route: "sostav_update",
