@@ -58,11 +58,11 @@ class Search {
 			$wordWeight = 0;
 			foreach($this->keywords as $word) {
 				$reg = "/\W(".$word.")/ui";
-				$wordWeight += preg_match_all($reg,$data['title'],$out);
-				$wordWeight += preg_match_all($reg,$data['meta_k'],$out);
-				$wordWeight += preg_match_all($reg,$data['meta_d'],$out);
-				$wordWeight += preg_match_all($reg,$data['description'],$out);
-				$wordWeight += preg_match_all($reg,$data['text'],$out);
+				$wordWeight += @preg_match_all($reg,$data['title'],$out);
+				$wordWeight += @preg_match_all($reg,$data['meta_k'],$out);
+				$wordWeight += @preg_match_all($reg,$data['meta_d'],$out);
+				$wordWeight += @preg_match_all($reg,$data['description'],$out);
+				$wordWeight += @preg_match_all($reg,$data['text'],$out);
 				$data['relevation'] += $wordWeight;
 				$data['title'] = self::colorSearchWord($word,$data['title']);
 				$data['description'] = self::colorSearchWord($word,$data['description']);
