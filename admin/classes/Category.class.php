@@ -12,7 +12,8 @@ class Category extends Data {
 	
 	function getValues() {
 		$arr = parent::getValues();
-		return array($arr[0], $this->meta_d, $this->meta_k, $arr[1]);
+		array_push($arr, $this->meta_d, $this->meta_k);
+		return $arr;
 	}
 }
 

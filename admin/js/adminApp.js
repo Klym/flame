@@ -172,12 +172,19 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 
 // Контроллеры, отвечающие за логику данных.
 
-adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	$scope.pages = pages;
-	// Получаем данные AJAX'ом
-	/*$http.get("test.json").success(function(data) {
-		$scope.pages = data;
-	});*/
+adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	// Получаем кэш с данными
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("pages") != undefined) { // Проверяем есть ли там данные и достаем их
+		$scope.pages = JSON.parse(cache.get("pages"));		
+	} else {
+		// Иначе посылаем запрос на сервер и заносим данные в кэш
+		$http.get("getData.php?type=pages").success(function(response) {
+			$scope.pages = response;
+			cache.put("pages", JSON.stringify(response));
+		});
+	}
 	
 	// Заголовки таблицы
 	$scope.sorts = [{ code: "title", name: "Название" }, { code: "meta_d", name: "Описание" }, { code: "page", name: "Страница" }];
@@ -204,23 +211,10 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 		});
     });
 	
-	// Метод удаления данных из scope текущего контроллера
-	$scope.del = function(id) {
-		if (!confirm("Вы дейстивтельно хотите удалить эту страницу?")) return;
-		// Готовим сообщения для вывода
-		var currentId = searchObj.searchId($scope.pages, id);
-		var successMessage = "Страница <strong>\"" + $scope.pages[currentId].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[currentId].title + "\"</strong> не удалена.";
-		// Удаляем объект из массива
-		$scope.pages.splice(currentId, 1);
-		// Вызываем сервис вывода сообщения
-		showSuccessMessage.show(successMessage);
-	}
+	$scope.buttonDisable = false;
 	
 	// Метод перенавправления на страницу добавления данных
-	$scope.goAdd = function() {
-		$scope.block = false;	// Блок кнопки
-		
+	$scope.goAdd = function() {		
 		$scope.$emit("changeRoute", {
 			route: "pages_add",
 			notAnotherPage: true
@@ -230,16 +224,69 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 	// Метод добавления новых данных
 	$scope.add = function() {
 		$scope.pages.push($scope.newPage);	// Запихиваем данные в стэк
-		$scope.block = true;				// Блокируем кнопку
-		// Отправляем данные на сервер
+		$scope.buttonDisable = true;
 		
-		var successMessage = "Страница <strong>\"" + $scope.newPage.title + "\"</strong> успешно добавлена.";
-		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.newPage.title + "\"</strong> не добавлена.";
-		showSuccessMessage.show(successMessage);
+		// Отправляем данные на сервер
+		var promise = $http.post("putData.php?type=pages", JSON.stringify($scope.newPage));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			// Ожидаем от сервера возврат идентификатора нового объекта
+			if (isNaN(response.data.result)) {
+				console.log(response.data);
+				rejected();
+			} else {
+				// Устанавливаем id добавленному объекту
+				$scope.pages[$scope.pages.length - 1].id = parseInt(response.data.result);
+				cache.put("pages", JSON.stringify($scope.pages));
+				var successMessage = "Страница <strong>\"" + $scope.newPage.title + "\"</strong> успешно добавлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			var errorMessage = "Ошибка! Страница <strong>\"" + $scope.newPage.title + "\"</strong> не добавлена.";
+			showErrorMessage.show(errorMessage);
+		}
+	}
+	
+	// Метод удаления данных из scope текущего контроллера
+	$scope.del = function(id) {
+		if ($scope.buttonDisable) return;
+		if (!confirm("Вы дейстивтельно хотите удалить эту страницу?")) return;
+		var currentId = searchObj.searchId($scope.pages, id);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=pages");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				// Готовим сообщение для вывода
+				var successMessage = "Страница <strong>\"" + $scope.pages[currentId].title + "\"</strong> успешно удалена.";
+				// Удаляем объект из массива
+				$scope.pages.splice(currentId, 1);
+				// Ложим обновленные данные в кэш
+				cache.put("pages", JSON.stringify($scope.pages));
+				// Вызываем сервис вывода сообщения
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[currentId].title + "\"</strong> не удалена.";
+			showErrorMessage.show(errorMessage);
+		}		
 	}
 	
 	// Метод перенаправления на страницу редактирования данных
 	$scope.goUpdate = function(id) {
+		if ($scope.buttonDisable) return;
 		var currentId = searchObj.searchId($scope.pages, id);
 		$scope.$emit("changeRoute", {
 			route: "pages_update",
@@ -250,11 +297,28 @@ adminApp.controller("pageCtrl", function($scope, $http, showSuccessMessage, show
 	
 	// Метод отправки новых данных на сервер
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.buttonDisable = true;
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php?type=pages", JSON.stringify($scope.pages[$scope.currentId]));
+		promise.then(fulfilled, rejected);
 		
-		var successMessage = "Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> не обновлена.";
-		showSuccessMessage.show(successMessage);
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				cache.put("pages", JSON.stringify($scope.pages));
+				var successMessage = "Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> успешно обновлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> не обновлена.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 });
 

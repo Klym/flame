@@ -13,6 +13,10 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 	$type = $_GET['type'];
 	
 	switch($type) {
+		case "pages":
+			$mapper = new PageMapper($pdo);
+			$object = new Page(null, $data->page, $data->title, $data->meta_d, $data->meta_k);
+		break;
 		case "categories":
 			$mapper = new CategoryMapper($pdo);
 			$object = new Category(null, $data->title, $data->text, $data->meta_d, $data->meta_k);

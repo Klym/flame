@@ -6,8 +6,8 @@ class CategoryMapper extends Mapper {
 		parent::__construct($pdo);
 		$this->selectStmt = $this->PDO->prepare("SELECT * FROM categories WHERE id=?");
 		$this->selectAllStmt = $this->PDO->prepare("SELECT * FROM categories");
-		$this->insertStmt = $this->PDO->prepare("INSERT INTO categories (title, meta_d, meta_k, text) VALUES (?,?,?,?)");
-		$this->updateStmt = $this->PDO->prepare("UPDATE categories SET title=?, meta_d=?, meta_k=?, text=? WHERE id=?");
+		$this->insertStmt = $this->PDO->prepare("INSERT INTO categories (title, text, meta_d, meta_k) VALUES (?,?,?,?)");
+		$this->updateStmt = $this->PDO->prepare("UPDATE categories SET title=?, text=?, meta_d=?, meta_k=? WHERE id=?");
 		$this->deleteStmt = $this->PDO->prepare("DELETE FROM categories WHERE id=?");
 	}
 	
