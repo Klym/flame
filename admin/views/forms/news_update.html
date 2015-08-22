@@ -34,7 +34,7 @@
                   <div class="form-group">
                   	<label for="catDate" class="col-sm-2 control-label">Дата добавления</label>
                     <div class="col-sm-3">
-                    	<input type="date" class="form-control" id="catDate" ng-model="news[currentId].date" required>
+                    	<input type="date" class="form-control" id="catDate" ng-model="(news[currentId].date | strToDate)" required>
                     </div>
                   </div>
                   <div class="form-group">
@@ -46,7 +46,7 @@
                   <div class="form-group"  ng-controller="userCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userGroup" ng-model="news[currentId].author" ng-options="user.id as user.login for user in (users | filter : {access : 1})"></select>
+                    	<select class="form-control" id="userGroup" ng-model="news[currentId].author" ng-options="$eval(user.id) as user.login for user in (users | filter : {access : 1})"></select>
                     </div>
                   </div>
                   <div class="form-group">

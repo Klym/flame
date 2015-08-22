@@ -322,11 +322,16 @@ adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSucce
 	}
 });
 
-adminApp.controller("userCtrl", function($scope, $http, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	$scope.users = users;
-	for (var i = 0; i < $scope.users.length; i++) {
-		$scope.users[i].regDate = new Date($scope.users[i].regDate);
-		$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
+adminApp.controller("userCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("players") != undefined) {
+		$scope.users = JSON.parse(cache.get("users"));
+	} else {
+		$http.get("getData.php?type=users").success(function(response) {
+			$scope.users = response;
+			cache.put("users", JSON.stringify(response));
+		});
 	}
 	
 	$scope.sorts = [{ code: "login", name: "Логин" }, { code: "email", name: "E-Mail" }, { code: "access", name: "Группа" }, { code: "regDate", name: "Дата регистрации" }];
@@ -440,9 +445,6 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 	
 	if (cache.get("categories") != undefined) {
 		$scope.categories = JSON.parse(cache.get("categories"));
-		for (var i = 0; i < $scope.categories.length; i++) {
-			$scope.categories[i].id = parseInt($scope.categories[i].id);
-		}
 	} else {
 		$http.get("getData.php?type=categories").success(function(response) {
 			$scope.categories = response;
@@ -578,9 +580,6 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 
 adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.data = data;
-	for (var i = 0; i < $scope.data.length; i++) {
-		$scope.data[i].date = new Date($scope.data[i].date);
-	}
 	
 	$scope.sorts = [{ code: "title", name: "Название" },  { code: "cat", name: "Категория" }, { code: "meta_d", name: "Описание" }];
 	
@@ -631,9 +630,6 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 
 adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.news = news;
-	for (var i = 0; i < $scope.news.length; i++) {
-		$scope.news[i].date = new Date($scope.news[i].date);
-	}
 	
 	$scope.sorts = [{ code: "title", name: "Название" },  { code: "date", name: "Дата" }, { code: "type", name: "Тип" }];
 	
@@ -691,12 +687,6 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 	
 	if (cache.get("players") != undefined) { // Проверяем есть ли там данные и достаем их
 		$scope.players = JSON.parse(cache.get("players"));
-		
-		// Преобразование всех числовых данных представленных строками в числа
-		for (var i = 0; i < $scope.players.length; i++) {
-			$scope.players[i].scores = parseFloat($scope.players[i].scores);
-			$scope.players[i].rang = parseInt($scope.players[i].rang);
-		}
 	} else {
 		// Иначе посылаем запрос на сервер и заносим данные в кэш
 		$http.get("getData.php?type=sostav").success(function(response) {

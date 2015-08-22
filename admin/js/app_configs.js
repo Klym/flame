@@ -85,6 +85,17 @@ adminApp.service("changeSortService", function() {
 	}
 });
 
+// Фильтр преобразвования строки в объект типа Date
+adminApp.filter("strToDate", function() {
+	return function(value) {
+		if (angular.isString(value)) {
+			return new Date(value);
+		} else {
+			return value;
+		}
+	}
+});
+
 // Директива определения группы пользователя
 adminApp.directive("defineUserGroup", function(searchObj) {
 	return function(scope, element) {

@@ -16,7 +16,7 @@
                   <div class="form-group" ng-controller="categoryCtrl">
                   	<label for="dataCat" class="col-sm-2 control-label">Категория</label>
                     <div class="col-sm-3">
-                    	<select class="form-control" id="dataCat"  ng-model="data[currentId].cat" ng-options="category.id as category.title for category in categories"></select>
+                    	<select class="form-control" id="dataCat"  ng-model="data[currentId].cat" ng-options="$eval(category.id) as category.title for category in categories"></select>
                     </div>
                   </div>
                   <div class="form-group">
@@ -40,7 +40,7 @@
                   <div class="form-group">
                   	<label for="catDate" class="col-sm-2 control-label">Дата добавления</label>
                     <div class="col-sm-3">
-                    	<input type="date" class="form-control" id="catDate" ng-model="data[currentId].date" required>
+                    	<input type="date" class="form-control" id="catDate" ng-model="(data[currentId].date | strToDate)" required>
                     </div>
                   </div>
 				  <div class="form-group">
@@ -52,7 +52,7 @@
                   <div class="form-group"  ng-controller="userCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userGroup" ng-model="data[currentId].author" ng-options="user.id as user.login for user in (users | filter : {access : 1})"></select>
+                    	<select class="form-control" id="userGroup" ng-model="data[currentId].author" ng-options="$eval(user.id) as user.login for user in (users | filter : {access : 1})"></select>
                     </div>
                   </div>
                   <div class="form-group">
