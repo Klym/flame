@@ -83,10 +83,14 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 });
 
 // routeCtrl отвечает за маршрутизацию
-adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheFactory) {
+adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheFactory, consts) {
 	$rootScope.selectedPage = "main";	// Текущая страница
 	$rootScope.currentId;				// Текущий id данных
-	
+
+	$rootScope.arrCount = consts.COUNT;		// Количество возможных массивов
+	$rootScope.showLoader = true;			// Флажок показа индикатора загрузки
+	$rootScope.loaded = 0;					// Количество загрузившихся массивов
+
 	$scope.limit = 3;						// Количество выводимых данных
 	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
 	
@@ -172,17 +176,20 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 
 // Контроллеры, отвечающие за логику данных.
 
-adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {	
 	// Получаем кэш с данными
 	var cache = $cacheFactory.get("dataCache");
 	
 	if (cache.get("pages") != undefined) { // Проверяем есть ли там данные и достаем их
-		$scope.pages = JSON.parse(cache.get("pages"));		
+		$scope.pages = JSON.parse(cache.get("pages"));
 	} else {
 		// Иначе посылаем запрос на сервер и заносим данные в кэш
 		$http.get("getData.php?type=pages").success(function(response) {
 			$scope.pages = response;
 			cache.put("pages", JSON.stringify(response));
+			if (++$rootScope.loaded == $rootScope.arrCount) {
+				$rootScope.showLoader = false;
+			}
 		});
 	}
 	
@@ -199,7 +206,6 @@ adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSucce
 		$scope.sortProp = changeSortService.sortProp;
 	}
 
-	
 	// Устанавливаем наблюдение за длинной массива данных, при его изменении отправляем новое значение контроллеру навигации
 	$scope.$watch("pages.length", function (newValue) {
 		$scope.$emit("changeCount", {
@@ -252,7 +258,6 @@ adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSucce
 	
 	// Метод удаления данных из scope текущего контроллера
 	$scope.del = function(id) {
-		if ($scope.buttonDisable) return;
 		if (!confirm("Вы дейстивтельно хотите удалить эту страницу?")) return;
 		var currentId = searchObj.searchId($scope.pages, id);
 		$scope.buttonDisable = true;
@@ -286,7 +291,6 @@ adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSucce
 	
 	// Метод перенаправления на страницу редактирования данных
 	$scope.goUpdate = function(id) {
-		if ($scope.buttonDisable) return;
 		var currentId = searchObj.searchId($scope.pages, id);
 		$scope.$emit("changeRoute", {
 			route: "pages_update",
@@ -322,15 +326,22 @@ adminApp.controller("pageCtrl", function($scope, $http, $cacheFactory, showSucce
 	}
 });
 
-adminApp.controller("userCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	var cache = $cacheFactory.get("dataCache");
 	
-	if (cache.get("players") != undefined) {
+	if (cache.get("users") != undefined) {
 		$scope.users = JSON.parse(cache.get("users"));
+		for (var i = 0; i < $scope.users.length; i++) {
+			$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
+			$scope.users[i].access = +$scope.users[i].access;
+		}
 	} else {
 		$http.get("getData.php?type=users").success(function(response) {
 			$scope.users = response;
 			cache.put("users", JSON.stringify(response));
+			if (++$rootScope.loaded == $rootScope.arrCount) {
+				$rootScope.showLoader = false;
+			}
 		});
 	}
 	
@@ -383,6 +394,7 @@ adminApp.controller("userCtrl", function($scope, $http, $cacheFactory, showSucce
 		});
     });
 	
+	$scope.buttonDisable = false;
 	// Стандартные данные нового пользователя
 	$scope.newUser = { access: 2, pol: 1, avatar: "net-avatara.jpg", activation: 1 };
 
@@ -399,21 +411,58 @@ adminApp.controller("userCtrl", function($scope, $http, $cacheFactory, showSucce
 		$scope.newUser.regDate = new Date();
 		$scope.newUser.password = MD5($scope.newUser.password); // Шифруем пароль
 		$scope.users.push($scope.newUser);
-		$scope.block = true;
-		// Отправляем данные на сервер
+		$scope.buttonDisable = true;
 		
-		var successMessage = "Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> успешно зарегистрирован.";
-		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> не зарегистрирован.";
-		showSuccessMessage.show(successMessage);
+		// Отправляем данные на сервер
+		var promise = $http.post("putData.php?type=users", JSON.stringify($scope.newUser));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			// Ожидаем от сервера возврат идентификатора нового объекта
+			if (isNaN(response.data.result)) {
+				console.log(response.data);
+				rejected();
+			} else {
+				// Устанавливаем id добавленному объекту
+				$scope.users[$scope.users.length - 1].id = parseInt(response.data.result);
+				cache.put("users", JSON.stringify($scope.users));
+				var successMessage = "Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> успешно зарегистрирован.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> не зарегистрирован.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить этого пользователя?")) return;
 		var currentId = searchObj.searchId($scope.users, id);
-		var successMessage = "Пользователь <strong>\"" + $scope.users[currentId].login + "\"</strong> успешно удален.";
-		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[currentId].login + "\"</strong> не удален.";
-		$scope.users.splice(currentId, 1);
-		showSuccessMessage.show(successMessage);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=users");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Пользователь <strong>\"" + $scope.users[currentId].login + "\"</strong> успешно удален.";
+				$scope.users.splice(currentId, 1);
+				cache.put("users", JSON.stringify($scope.users));
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[currentId].login + "\"</strong> не удален.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 	
 	
@@ -427,20 +476,46 @@ adminApp.controller("userCtrl", function($scope, $http, $cacheFactory, showSucce
 	}
 	
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.buttonDisable = true;
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php?type=users", JSON.stringify($scope.users[$scope.currentId]));
+		promise.then(fulfilled, rejected);
 		
-		var successMessage = "Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> успешно обновлен.";
-		var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> не обновлен.";
-		showSuccessMessage.show(successMessage);
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				cache.put("users", JSON.stringify($scope.users));
+				var successMessage = "Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> успешно обновлен.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> не обновлен.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 });
 
-adminApp.controller("userGroupCtrl", function($scope) {
-	$scope.groups = userGroups;
+adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("usergroups") != undefined) {
+		$scope.groups = JSON.parse(cache.get("usergroups"));
+	} else {
+		$http.get("getData.php?type=usergroups").success(function(response) {
+			$scope.groups = response;
+			cache.put("usergroups", JSON.stringify(response));
+		});
+	}
 });
 
 
-adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	var cache = $cacheFactory.get("dataCache");
 	
 	if (cache.get("categories") != undefined) {
@@ -449,6 +524,9 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 		$http.get("getData.php?type=categories").success(function(response) {
 			$scope.categories = response;
 			cache.put("categories", JSON.stringify(response));
+			if (++$rootScope.loaded == $rootScope.arrCount) {
+				$rootScope.showLoader = false;
+			}
 		});
 	}
 	
@@ -514,7 +592,6 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 	}
 	
 	$scope.del = function(id) {
-		if ($scope.buttonDisable) return;
 		if (!confirm("Вы дейстивтельно хотите удалить эту категорию?")) return;
 		var currentId = searchObj.searchId($scope.categories, id);
 		$scope.buttonDisable = true;
@@ -543,7 +620,6 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 	}
 	
 	$scope.goUpdate = function(id) {
-		if ($scope.buttonDisable) return;
 		var currentId = searchObj.searchId($scope.categories, id);
 		$scope.$emit("changeRoute", {
 			route: "categories_update",
@@ -578,8 +654,20 @@ adminApp.controller("categoryCtrl", function($scope, $http, $cacheFactory, showS
 	}
 });
 
-adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	$scope.data = data;
+adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	var cache = $cacheFactory.get("dataCache");
+	
+	if (cache.get("data") != undefined) {
+		$scope.data = JSON.parse(cache.get("data"));
+	} else {
+		$http.get("getData.php?type=data").success(function(response) {
+			$scope.data = response;
+			cache.put("data", JSON.stringify(response));
+			if (++$rootScope.loaded == $rootScope.arrCount) {
+				$rootScope.showLoader = false;
+			}
+		});
+	}
 	
 	$scope.sorts = [{ code: "title", name: "Название" },  { code: "cat", name: "Категория" }, { code: "meta_d", name: "Описание" }];
 	
@@ -628,9 +716,11 @@ adminApp.controller("dataCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+adminApp.controller("newsCtrl", function($scope, $rootScope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.news = news;
-	
+	if (++$rootScope.loaded == $rootScope.arrCount) {
+		$rootScope.showLoader = false;
+	}
 	$scope.sorts = [{ code: "title", name: "Название" },  { code: "date", name: "Дата" }, { code: "type", name: "Тип" }];
 	
 	changeSortService.setSortClasses($scope.sorts);
@@ -681,17 +771,25 @@ adminApp.controller("newsCtrl", function($scope, showSuccessMessage, showErrorMe
 	}
 });
 
-adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	// Получаем кэш с данными
 	var cache = $cacheFactory.get("dataCache");
 	
 	if (cache.get("players") != undefined) { // Проверяем есть ли там данные и достаем их
 		$scope.players = JSON.parse(cache.get("players"));
+		for (var i = 0; i < $scope.players.length; i++) {
+			// Преобразуем строковые значения в числовые
+			$scope.players[i].scores = +$scope.players[i].scores;
+			$scope.players[i].rang = +$scope.players[i].rang;
+		}
 	} else {
 		// Иначе посылаем запрос на сервер и заносим данные в кэш
 		$http.get("getData.php?type=sostav").success(function(response) {
 			$scope.players = response;
 			cache.put("players", JSON.stringify(response));
+			if (++$rootScope.loaded == $rootScope.arrCount) {
+				$rootScope.showLoader = false;
+			}
 		});
 	}
 	
@@ -755,7 +853,6 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 	}
 	
 	$scope.del = function(id) {
-		if ($scope.buttonDisable) return;
 		if (!confirm("Вы дейстивтельно хотите удалить этого игрока?")) return;
 		var currentId = searchObj.searchId($scope.players, id);
 		$scope.buttonDisable = true;
@@ -784,8 +881,7 @@ adminApp.controller("sostavCtrl", function($scope, $http, $cacheFactory, showSuc
 	}
 	
 	$scope.goUpdate = function(id) {
-		if ($scope.buttonDisable) return;
-		var currentId = searchObj.searchId($scope.players, id);
+		var currentId = searchObj.searchId($scope.players, id);		
 		$scope.$emit("changeRoute", {
 			route: "sostav_update",
 			id: currentId,
@@ -825,14 +921,22 @@ adminApp.controller("rangCtrl", function($scope, searchObj) {
 	// Меняем очки при изменении ранга
 	$scope.changeScores = function(rangId) {
 		var rang = searchObj.searchId($scope.rangs, rangId);
-		$scope.players[$scope.currentId].scores = $scope.rangs[rang].minScores;
+		if ($scope.players[$scope.currentId]) {
+			$scope.players[$scope.currentId].scores = $scope.rangs[rang].minScores;
+		} else {
+			$scope.newPlayer.scores = $scope.rangs[rang].minScores;
+		}
 	}
 	
 	// Меняем ранг при изменении очков
 	$scope.changeRang = function(newScores) {
 		for (var i = 0; i < $scope.rangs.length; i++) {
 			if (newScores >= $scope.rangs[i].minScores && newScores <= $scope.rangs[i].maxScores) {
-				$scope.players[$scope.currentId].rang = $scope.rangs[i].id;
+				if ($scope.players[$scope.currentId]) {
+					$scope.players[$scope.currentId].rang = $scope.rangs[i].id;
+				} else {
+					$scope.newPlayer.rang = $scope.rangs[i].id;
+				}
 			}
 		}
 	}

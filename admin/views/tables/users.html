@@ -28,9 +28,13 @@
                     <td ng-controller="userGroupCtrl" define-user-group></td>
                     <td>{{user.regDate | date: "yyyy-MM-dd HH:mm:ss"}}</td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(user.id)"></span>
-                        &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del(user.id)"></span>
+                    	<button class="btn btn-default btn-xs" ng-click="goUpdate(user.id)" ng-disabled="buttonDisable">
+                        	<span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-default btn-xs" ng-click="del(user.id)" ng-disabled="buttonDisable">
+	                        <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </td>
                 </tr>
             </table>

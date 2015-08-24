@@ -31,7 +31,7 @@
                   <div class="form-group"  ng-controller="userGroupCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Группа</label>
                     <div class="col-sm-5">
-                    	<select class="form-control" id="userGroup" ng-model="$eval(users[currentId].access)" ng-options="group.id as group.title for group in groups"></select>
+                    	<select class="form-control" id="userGroup" ng-model="users[currentId].access" ng-options="$eval(group.id) as group.title for group in groups"></select>
                     </div>
                   </div>
                   <div class="form-group">
@@ -61,7 +61,7 @@
                   <div class="form-group">
                   	<label for="userBirthDate" class="col-sm-2 control-label">Дата рождения</label>
                     <div class="col-sm-5">
-                    	<input type="date" class="form-control" id="userBirthDate" ng-model="(users[currentId].birthDate | strToDate)" required>
+                    	<input type="date" class="form-control" id="userBirthDate" ng-model="users[currentId].birthDate" required>
                     </div>
                   </div>
                   <div class="form-group">
@@ -82,7 +82,7 @@
                   </div>
                   <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                      <input type="submit" class="btn btn-primary" value="Обновить">
+                      <input type="submit" class="btn btn-primary" ng-disabled="buttonDisable" value="Обновить">
                     </div>
                   </div>
                 </form>

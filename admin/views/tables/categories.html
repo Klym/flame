@@ -27,9 +27,13 @@
                     <td>{{category.meta_d}}</td>
                     <td>{{category.meta_k}}</td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(category.id)"></span>
-                        &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del(category.id)"></span>
+                    	<button class="btn btn-default btn-xs" ng-click="goUpdate(category.id)" ng-disabled="buttonDisable">
+                        	<span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-default btn-xs" ng-click="del(category.id)" ng-disabled="buttonDisable">
+	                        <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </td>
                 </tr>
             </table>

@@ -27,9 +27,13 @@
                     <td ng-controller="categoryCtrl" define-cat></td>
                     <td>{{dataItem.meta_d}}</td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(dataItem.id)"></span>
-                        &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del(dataItem.id)"></span>
+                    	<button class="btn btn-default btn-xs" ng-click="goUpdate(dataItem.id)" ng-disabled="buttonDisable">
+                        	<span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-default btn-xs" ng-click="del(dataItem.id)" ng-disabled="buttonDisable">
+	                        <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </td>
                 </tr>
             </table>

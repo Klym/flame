@@ -27,9 +27,13 @@
                     <td>{{newsItem.date | date : "dd.MM.yyyy"}}</td>
                     <td define-news-type></td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(newsItem.id)"></span>
-                        &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del(newsItem.id)"></span>
+                    	<button class="btn btn-default btn-xs" ng-click="goUpdate(newsItem.id)" ng-disabled="buttonDisable">
+                        	<span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-default btn-xs" ng-click="del(newsItem.id)" ng-disabled="buttonDisable">
+	                        <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </td>
                 </tr>
             </table>

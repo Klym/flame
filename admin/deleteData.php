@@ -11,6 +11,9 @@ if (isset($_GET['type']) && !empty($_GET['type']) && isset($_GET['id']) && !empt
 		case "pages":
 			$mapper = new PageMapper($pdo);
 		break;
+		case "users":
+			$mapper = new UserMapper($pdo);
+		break;
 		case "categories":
 			$mapper = new CategoryMapper($pdo);
 		break;

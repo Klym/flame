@@ -85,6 +85,13 @@ adminApp.service("changeSortService", function() {
 	}
 });
 
+// Константа определяет количество возможных массивов
+adminApp.constant("consts", function() {
+	return {
+		COUNT: 6
+	}
+}());
+
 // Фильтр преобразвования строки в объект типа Date
 adminApp.filter("strToDate", function() {
 	return function(value) {
@@ -97,18 +104,34 @@ adminApp.filter("strToDate", function() {
 });
 
 // Директива определения группы пользователя
-adminApp.directive("defineUserGroup", function(searchObj) {
+adminApp.directive("defineUserGroup", function(searchObj, $http, $cacheFactory) {
 	return function(scope, element) {
-		var ugid = searchObj.searchId(scope.groups, scope.user.access);
-		element.append(document.createTextNode(scope.groups[ugid].title));
+		if (scope.groups == undefined) {
+			$http.get("getData.php?type=usergroups").success(function(response) {
+				scope.groups = response;		
+				var cat = searchObj.searchId(scope.groups, scope.user.access);
+				element.append(document.createTextNode(scope.groups[cat].title));
+			});
+		} else {
+			var ugid = searchObj.searchId(scope.groups, scope.user.access);
+			element.append(document.createTextNode(scope.groups[ugid].title));
+		}
 	}
 });
 
 // Директива определения категории материалов
-adminApp.directive("defineCat", function(searchObj) {
+adminApp.directive("defineCat", function(searchObj, $http, $cacheFactory) {
 	return function (scope, element) {
-		var cat = searchObj.searchId(scope.categories, scope.dataItem.cat);
-		element.append(document.createTextNode(scope.categories[cat].title));
+		if (scope.categories == undefined) {
+			$http.get("getData.php?type=categories").success(function(response) {
+				scope.categories = response;		
+				var cat = searchObj.searchId(scope.categories, scope.dataItem.cat);
+				element.append(document.createTextNode(scope.categories[cat].title));
+			});
+		} else {
+			var cat = searchObj.searchId(scope.categories, scope.dataItem.cat);
+			element.append(document.createTextNode(scope.categories[cat].title));
+		}
 	}
 });
 

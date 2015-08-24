@@ -27,9 +27,13 @@
                     <td>{{page.meta_d}}</td>
                     <td>{{page.page}}</td>
                     <td style="text-align:center; vertical-align:middle;">
-                    	<span class="glyphicon glyphicon-pencil edit" ng-click="goUpdate(page.id)"></span>
-                        &nbsp;&nbsp;
-                        <span class="glyphicon glyphicon-trash edit" ng-click="del(page.id)"></span>
+                    	<button class="btn btn-default btn-xs" ng-click="goUpdate(page.id)" ng-disabled="buttonDisable">
+                        	<span class="glyphicon glyphicon-pencil"></span>
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-default btn-xs" ng-click="del(page.id)" ng-disabled="buttonDisable">
+	                        <span class="glyphicon glyphicon-trash"></span>
+                        </button>
                     </td>
                 </tr>
             </table>
