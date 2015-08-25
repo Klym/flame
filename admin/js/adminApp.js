@@ -88,12 +88,13 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheF
 	$rootScope.currentId;				// Текущий id данных
 
 	$rootScope.arrCount = consts.COUNT;		// Количество возможных массивов
-	$rootScope.showLoader = true;			// Флажок показа индикатора загрузки
+	$rootScope.showLoader = false;			// Флажок показа индикатора загрузки
 	$rootScope.loaded = 0;					// Количество загрузившихся массивов
 
 	$scope.limit = 3;						// Количество выводимых данных
-	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
-	
+	$scope.limits = [10, 25, 50, 100];		// Массив возможных лимитов
+	$scope.diapazons = [0];					// Хранит нижнюю границу вывода данных из кэша на страницу
+
 	$cacheFactory("dataCache");		// Создаем кэш для хранения данных из БД
 	
 	// Записываем в харнилище значение страницы в pagination и свойство сортировки
@@ -159,7 +160,8 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 	});
 	
 	// Количество данных в таблицах
-	$scope.counts = { pages: 0, users: 0, categories: 0, dataItems: 0, news: 0, players: 0 };
+	$rootScope.counts = { pages: 0, users: 0, categories: 0, data: 0, news: 0, players: 0 };
+	
 	// Принимаем события изменения количества и записываем данные
 	$scope.$on("changeCount", function(event, args) {
 		$scope.counts[args.key] = args.val;
@@ -184,7 +186,7 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 		$scope.pages = JSON.parse(cache.get("pages"));
 	} else {
 		// Иначе посылаем запрос на сервер и заносим данные в кэш
-		$http.get("getData.php?type=pages").success(function(response) {
+		$http.get("getData.php?type=pages&from=1&to=10").success(function(response) {
 			$scope.pages = response;
 			cache.put("pages", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
@@ -336,7 +338,7 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 			$scope.users[i].access = +$scope.users[i].access;
 		}
 	} else {
-		$http.get("getData.php?type=users").success(function(response) {
+		$http.get("getData.php?type=users&from=1&to=10").success(function(response) {
 			$scope.users = response;
 			cache.put("users", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
@@ -507,11 +509,12 @@ adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
 	if (cache.get("usergroups") != undefined) {
 		$scope.groups = JSON.parse(cache.get("usergroups"));
 	} else {
-		$http.get("getData.php?type=usergroups").success(function(response) {
+		$http.get("getData.php?type=usergroups&from=1&to=10").success(function(response) {
 			$scope.groups = response;
 			cache.put("usergroups", JSON.stringify(response));
 		});
 	}
+	$scope.groups = userGroups;
 });
 
 
@@ -521,7 +524,7 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 	if (cache.get("categories") != undefined) {
 		$scope.categories = JSON.parse(cache.get("categories"));
 	} else {
-		$http.get("getData.php?type=categories").success(function(response) {
+		$http.get("getData.php?type=categories&from=1&to=10").success(function(response) {
 			$scope.categories = response;
 			cache.put("categories", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
@@ -529,6 +532,8 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 			}
 		});
 	}
+	
+	$scope.categories = categories;
 	
 	// Удостоверимся что мы не наследуемся от контроллера data
 	if ($scope.data == undefined) {
@@ -655,12 +660,70 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 });
 
 adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
+	
 	var cache = $cacheFactory.get("dataCache");
+	var flag = true;
+	
+	$scope.$on("changeLimit", function(event, args) {
+		var cover = Math.ceil($scope.limit / args.oldLim);
+		var cached = JSON.parse(cache.get("data"));
+		var temp = [];
+		var deque = [];
+		var pagesCount = Math.ceil($scope.counts.data / args.oldLim);
+		var mod = (pagesCount * args.oldLim) % $scope.counts.data;
+		
+		for (var i = 0; i < pagesCount; i++) {
+			if (i < cover && $scope.diapazons[i] == undefined) {
+				var from = args.oldLim * i;
+				var length = temp.length;
+				var lim = (i != pagesCount - 1) ? args.oldLim : args.oldLim - mod;
+				for (var k = 0; k < lim; k++) {
+					temp.push(null);
+				}
+				deque.push({ index: length, limit: lim });
+				$http.get("getData.php?type=data&from=" + from + "&to=" + args.oldLim + "").success(function(response) {
+					var l = (deque[0].limit == response.length) ? deque.shift().index : deque.pop().index;
+					for (var j = 0; j < response.length; j++, l++) {
+						temp[l] = response[j];
+					}
+					cache.put("data", JSON.stringify(temp));
+					$scope.data = temp;
+				});
+			} else {
+				for (var j = $scope.diapazons[i], k = 0; (i != pagesCount - 1) ? k < args.oldLim: k < args.oldLim - mod; j++, k++) {
+					temp.push(cached[j]);
+				}
+			}
+		}
+		$scope.diapazons = [];
+		for (var i = 0, val = 0; i < Math.ceil(temp.length / $scope.limit); i++, val += $scope.limit) {
+			$scope.diapazons[i] = val;
+		}		
+	});
+	
+	$scope.$on("changePage", function(event, args) {
+		var from = $scope.limit * (args.page - 1);
+		var count = parseInt($scope.limit);
+		if ($scope.diapazons[args.page - 1] == undefined) {
+			$scope.diapazons[args.page - 1] = JSON.parse(cache.get("data")).length;
+			$http.get("getData.php?type=data&from=" + from + "&to=" + count + "").success(function(response) {
+				var temp = JSON.parse(cache.get("data"));
+				for (var i = 0; i < response.length; i++) {
+					temp.push(response[i]);
+				}
+				cache.put("data", JSON.stringify(temp));
+				$scope.data = temp;
+			}).error(function(response) {
+				console.log(response);
+			});
+		}
+	});
+	
 	
 	if (cache.get("data") != undefined) {
 		$scope.data = JSON.parse(cache.get("data"));
 	} else {
-		$http.get("getData.php?type=data").success(function(response) {
+		$http.get("getData.php?type=data&from=0&to=10").success(function(response) {
 			$scope.data = response;
 			cache.put("data", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
@@ -679,16 +742,16 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		$scope.sortProp = changeSortService.sortProp;
 	}
 	
-	$scope.$watch("data.length", function (newValue) {
+	$http.get("getCount.php?type=data", { cache : true }).success(function(response) {
 		$scope.$emit("changeCount", {
-			key: "dataItems",
-			val: newValue
+			key: "data",
+			val: response
 		});
 		$scope.$broadcast("changeCount", {
-			val: newValue
+			val: response
 		});
-    });
-	
+	});
+   
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
 		var currentId = searchObj.searchId($scope.data, id);
@@ -784,7 +847,7 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 		}
 	} else {
 		// Иначе посылаем запрос на сервер и заносим данные в кэш
-		$http.get("getData.php?type=sostav").success(function(response) {
+		$http.get("getData.php?type=sostav&from=1&to=10").success(function(response) {
 			$scope.players = response;
 			cache.put("players", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
@@ -943,17 +1006,19 @@ adminApp.controller("rangCtrl", function($scope, searchObj) {
 });
 
 // Контроллер отвечающий за постраничную навигацию
-adminApp.controller("paginationCtrl", function($scope) {
+adminApp.controller("paginationCtrl", function($scope, $rootScope) {
 	// Читаем данные текущей страницы с хранилища
-	$scope.selected = window.sessionStorage.getItem("nav");
-	
+	$scope.selected = parseInt(window.sessionStorage.getItem("nav"));
 	// Ставим под наблюдение значение количества выводимых данных
 	$scope.$watch("limit", function(newLimit, oldLimit) {
 		if ($scope.selectedPage != "main" && newLimit != oldLimit) {
 			// При его изменении вычисляем количество страниц
-			$scope.count = new Array(Math.ceil($scope[$scope.selectedPage].length / newLimit));
+			$scope.count = new Array(Math.ceil($rootScope.counts[$scope.selectedPage] / newLimit));
 			$scope.selected = 1;
 			window.sessionStorage.nav = 1;
+			
+			$scope.$emit("changeLimit", { oldLim: oldLimit } );
+			
 			// Если страница одна блокируем кнопку след. страницы
 			if ($scope.count.length == 1) {
 				$scope.nextDis = "disabled";
@@ -986,10 +1051,11 @@ adminApp.controller("paginationCtrl", function($scope) {
 	}
 	
 	// В зависимости от текущей страницы отпределяем классы конопок предыдущей и следующей страниц
-	$scope.$watch("selected", function(newPage) {
+	$scope.$watch("selected", function(newPage, oldPage) {
+		if (newPage == oldPage) return;
 		$scope.prevDis = newPage == 1 ? 'disabled' : '';
 		$scope.nextDis = $scope.selected == $scope.count.length ? 'disabled' : '';
-		// Отправляем событие переключения страницы. Будет использовано для фильтрации данных
+		// Отправляем событие переключения страницы. Будет использовано для фильтрации данных и подгрузки данных
 		$scope.$emit("changePage", {
 			page: newPage
 		});

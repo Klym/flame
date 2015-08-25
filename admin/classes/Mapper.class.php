@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 abstract class Mapper {
 	protected $PDO;
@@ -8,6 +8,16 @@ abstract class Mapper {
 	}
 	
 	protected abstract function doCreateObject(array $array);
+	
+	function getCount() {
+		$result = $this->selectCount->execute();
+		if (!$result) {
+			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
+		}
+		$this->selectCount->setFetchMode(PDO::FETCH_ASSOC);
+		$row = $this->selectCount->fetch();
+		return $row['count'];
+	}
 	
 	function find($id) {
 		$this->selectStmt->execute(array($id));
@@ -19,8 +29,10 @@ abstract class Mapper {
 		return $object;
 	}
 	
-	function findAll() {
-		$result = $this->selectAllStmt->execute(array());
+	function findCollection($from, $to) {
+		$this->selectAllStmt->bindValue("1", (int)$from, PDO::PARAM_INT);
+		$this->selectAllStmt->bindValue("2", (int)$to, PDO::PARAM_INT);
+		$result = $this->selectAllStmt->execute();
 		if (!$result) {
 			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
 		}

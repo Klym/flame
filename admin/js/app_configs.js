@@ -159,7 +159,7 @@ adminApp.filter("getItems", function() {
 			for (var i = 0; i < temp.length; i++) {
 				temp[i] = items[i];
 			}
-			return temp.splice(params.limit * params.page, params.limit);
+			return temp.splice(params.from, params.limit);
 		} else {
 			return items;
 		}

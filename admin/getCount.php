@@ -1,18 +1,10 @@
-<?php
+﻿<?php
 
 require("blocks/autoload.php");
 require("blocks/db.php");
 
-if (isset($_GET["from"]) && isset($_GET["to"])) {
-	$from = $_GET["from"];
-	$to = $_GET["to"];
-} else {
-	die(json_encode(array("result" => "Ошибка. Не все данные были переданы")));
-}
-
 if (isset($_GET['type']) && !empty($_GET['type'])) {
 	$type = $_GET['type'];
-	
 	switch($type) {
 		case "pages":
 			$mapper = new PageMapper($pdo);
@@ -38,11 +30,9 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 	}
 }
 try {
-	$data = $mapper->findCollection($from, $to);
+	$count = $mapper->getCount();
 } catch(Exception $e) {
 	die(json_encode(array("result" => $e->getMessage())));
 }
-
-echo $data;
-
+echo $count;
 ?>
