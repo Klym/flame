@@ -92,7 +92,7 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheF
 	$rootScope.loaded = 0;					// Количество загрузившихся массивов
 
 	$scope.limit = 3;						// Количество выводимых данных
-	$scope.limits = [10, 25, 50, 100];		// Массив возможных лимитов
+	$scope.limits = [5, 10, 25, 50, 100];		// Массив возможных лимитов
 	$scope.diapazons = [0];					// Хранит нижнюю границу вывода данных из кэша на страницу
 
 	$cacheFactory("dataCache");		// Создаем кэш для хранения данных из БД
@@ -672,7 +672,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		var pagesCount = Math.ceil($scope.counts.data / args.oldLim);
 		var mod = (pagesCount * args.oldLim) % $scope.counts.data;
 		
-		for (var i = 0; i < pagesCount; i++) {
+		for (var i = 0; i < cover; i++) {
 			if (i < cover && $scope.diapazons[i] == undefined) {
 				var from = args.oldLim * i;
 				var length = temp.length;
@@ -691,7 +691,8 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				});
 			} else {
 				for (var j = $scope.diapazons[i], k = 0; (i != pagesCount - 1) ? k < args.oldLim: k < args.oldLim - mod; j++, k++) {
-					temp.push(cached[j]);
+					if (cached[j] != undefined)
+						temp.push(cached[j]);
 				}
 			}
 		}
@@ -723,7 +724,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	if (cache.get("data") != undefined) {
 		$scope.data = JSON.parse(cache.get("data"));
 	} else {
-		$http.get("getData.php?type=data&from=0&to=10").success(function(response) {
+		$http.get("getData.php?type=data&from=0&to=5").success(function(response) {
 			$scope.data = response;
 			cache.put("data", JSON.stringify(response));
 			if (++$rootScope.loaded == $rootScope.arrCount) {
