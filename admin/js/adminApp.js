@@ -672,7 +672,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		var pagesCount = Math.ceil($scope.counts.data / args.oldLim);
 		var mod = (pagesCount * args.oldLim) % $scope.counts.data;
 		
-		for (var i = 0; i < cover; i++) {
+		for (var i = 0; i < pagesCount; i++) {
 			if (i < cover && $scope.diapazons[i] == undefined) {
 				var from = args.oldLim * i;
 				var length = temp.length;
@@ -699,7 +699,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		$scope.diapazons = [];
 		for (var i = 0, val = 0; i < Math.ceil(temp.length / $scope.limit); i++, val += $scope.limit) {
 			$scope.diapazons[i] = val;
-		}		
+		}
 	});
 	
 	$scope.$on("changePage", function(event, args) {
