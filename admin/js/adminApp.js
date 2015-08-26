@@ -160,7 +160,7 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 	});
 	
 	// Количество данных в таблицах
-	$rootScope.counts = { pages: 0, users: 0, categories: 0, data: 0, news: 0, players: 0 };
+	$rootScope.counts = {  };
 	
 	// Принимаем события изменения количества и записываем данные
 	$scope.$on("changeCount", function(event, args) {
@@ -724,7 +724,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		$scope.sortProp = changeSortService.sortProp;
 	}
 	
-	$http.get("getCount.php?type=data", { cache : true }).success(function(response) {
+	$http.get("getCount.php?type=data").success(function(response) {
 		$scope.$emit("changeCount", {
 			key: "data",
 			val: response
@@ -737,10 +737,54 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
 		var currentId = searchObj.searchId($scope.data, id);
-		var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> не удалена.";
-		$scope.data.splice(currentId, 1);
-		showSuccessMessage.show(successMessage);
+		var nav = parseInt(window.sessionStorage["nav"]) - 1;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=data");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
+				var index = $scope.diapazons[nav] + $scope.limit - 1;
+				if ($scope.diapazons[nav + 1] == undefined) {
+					var from = $scope.limit * (nav + 1) - 1;
+					$http.get("getData.php?type=data&from=" + from + "&to=1").success(function(response) {
+
+						$scope.data.splice(currentId, 1);
+						$scope.data.splice(index, 0, response[0]);
+						$scope.data.splice(index + 1, $scope.data.length);
+						delFromCache();
+					});
+				} else {
+					$scope.data.splice(currentId, 1);
+					$scope.data.splice(index + 1, $scope.data.length);
+					delFromCache();
+				}
+				
+				function delFromCache() {
+					cache.put("data", JSON.stringify($scope.data));
+					$scope.diapazons.splice(nav + 1, $scope.diapazons.length);
+					showSuccessMessage.show(successMessage);
+					$scope.$emit("changeCount", {
+						key: "data",
+						val: $scope.counts.data - 1
+					});
+					$scope.$broadcast("changeCount", {
+						val: $scope.counts.data
+					});
+				}
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> не удалена.";
+			showErrorMessage.show(errorMessage);
+		}		
 	}
 	
 	$scope.goUpdate = function(id) {
@@ -1000,10 +1044,12 @@ adminApp.controller("paginationCtrl", function($scope, $rootScope) {
 			window.sessionStorage.nav = 1;
 			
 			$scope.$emit("changeLimit");
-			
-			// Если страница одна блокируем кнопку след. страницы
 			if ($scope.count.length == 1) {
+				$scope.prevDis = "disabled";
 				$scope.nextDis = "disabled";
+			}
+			if ($scope.count.length > 1) {
+				$scope.nextDis = '';
 			}
 		}
 	});
@@ -1014,6 +1060,7 @@ adminApp.controller("paginationCtrl", function($scope, $rootScope) {
 		$scope.count = new Array(Math.ceil(args.val / $scope.limit));
 		// Если страница одна блокируем кнопку след. страницы
 		if ($scope.count.length == 1) {
+			$scope.prevDis = "disabled";
 			$scope.nextDis = "disabled";
 		}
 	});
@@ -1034,9 +1081,9 @@ adminApp.controller("paginationCtrl", function($scope, $rootScope) {
 	
 	// В зависимости от текущей страницы отпределяем классы конопок предыдущей и следующей страниц
 	$scope.$watch("selected", function(newPage, oldPage) {
-		if (newPage == oldPage) return;
 		$scope.prevDis = newPage == 1 ? 'disabled' : '';
-		$scope.nextDis = $scope.selected == $scope.count.length ? 'disabled' : '';
+		if ($scope.count != undefined)
+			$scope.nextDis = $scope.selected == $scope.count.length ? 'disabled' : '';
 		// Отправляем событие переключения страницы. Будет использовано для фильтрации данных и подгрузки данных
 		$scope.$emit("changePage", {
 			page: newPage

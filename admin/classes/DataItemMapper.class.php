@@ -9,7 +9,7 @@ class DataItemMapper extends Mapper {
 		$this->selectAllStmt = $this->PDO->prepare("SELECT * FROM data ORDER BY date DESC LIMIT ?, ?");
 		$this->insertStmt = $this->PDO->prepare("INSERT INTO data (title, text, cat, meta_d, meta_k, description, view, author, date) VALUES (?,?,?,?,?,?,?,?,?)");
 		$this->updateStmt = $this->PDO->prepare("UPDATE data SET title=?, text=?, cat=?, meta_d=?, meta_k=?, description=?, view=?, author=?, date=? WHERE id=?");
-		$this->deleteStmt = $this->PDO->prepare("DELETE FROM date WHERE id=?");
+		$this->deleteStmt = $this->PDO->prepare("DELETE FROM data WHERE id=?");
 	}
 	
 	protected function doCreateObject(array $array) {
