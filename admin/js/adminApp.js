@@ -664,41 +664,22 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	var cache = $cacheFactory.get("dataCache");
 	var flag = true;
 	
-	$scope.$on("changeLimit", function(event, args) {
-		var cover = Math.ceil($scope.limit / args.oldLim);
-		var cached = JSON.parse(cache.get("data"));
-		var temp = [];
-		var deque = [];
-		var pagesCount = Math.ceil($scope.counts.data / args.oldLim);
-		var mod = (pagesCount * args.oldLim) % $scope.counts.data;
-		
-		for (var i = 0; i < pagesCount; i++) {
-			if (i < cover && $scope.diapazons[i] == undefined) {
-				var from = args.oldLim * i;
-				var length = temp.length;
-				var lim = (i != pagesCount - 1) ? args.oldLim : args.oldLim - mod;
-				for (var k = 0; k < lim; k++) {
-					temp.push(null);
-				}
-				deque.push({ index: length, limit: lim });
-				$http.get("getData.php?type=data&from=" + from + "&to=" + args.oldLim + "").success(function(response) {
-					var l = (deque[0].limit == response.length) ? deque.shift().index : deque.pop().index;
-					for (var j = 0; j < response.length; j++, l++) {
-						temp[l] = response[j];
-					}
-					cache.put("data", JSON.stringify(temp));
-					$scope.data = temp;
-				});
-			} else {
-				for (var j = $scope.diapazons[i], k = 0; (i != pagesCount - 1) ? k < args.oldLim: k < args.oldLim - mod; j++, k++) {
-					if (cached[j] != undefined)
-						temp.push(cached[j]);
-				}
+	$scope.$on("changeLimit", function(event) {
+		$scope.diapazons = [0];
+		if ($scope.limits[0] == $scope.limit) {
+			var temp = JSON.parse(cache.get("data"));
+			for (var i = 0; i < $scope.limit; i++) {
+				$scope.data.push(temp[i]);
 			}
-		}
-		$scope.diapazons = [];
-		for (var i = 0, val = 0; i < Math.ceil(temp.length / $scope.limit); i++, val += $scope.limit) {
-			$scope.diapazons[i] = val;
+			cache.put("data", JSON.stringify($scope.data));
+		} else {
+			$scope.data = [];
+			$http.get("getData.php?type=data&from=" + 0 + "&to=" + $scope.limit + "").success(function(response) {			
+				for (var i = 0; i < response.length; i++) {
+					$scope.data.push(response[i]);
+				}
+				cache.put("data", JSON.stringify($scope.data));
+			});
 		}
 	});
 	
@@ -1018,7 +999,7 @@ adminApp.controller("paginationCtrl", function($scope, $rootScope) {
 			$scope.selected = 1;
 			window.sessionStorage.nav = 1;
 			
-			$scope.$emit("changeLimit", { oldLim: oldLimit } );
+			$scope.$emit("changeLimit");
 			
 			// Если страница одна блокируем кнопку след. страницы
 			if ($scope.count.length == 1) {
