@@ -1,14 +1,7 @@
-<?php
+﻿<?php
 
 require("blocks/autoload.php");
 require("blocks/db.php");
-
-if (isset($_GET["from"]) && isset($_GET["to"])) {
-	$from = $_GET["from"];
-	$to = $_GET["to"];
-} else {
-	die(json_encode(array("result" => "Ошибка. Не все данные были переданы")));
-}
 
 if (isset($_GET['type']) && !empty($_GET['type'])) {
 	$type = $_GET['type'];
@@ -34,11 +27,11 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 		break;
 		default:
 			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
-		break;
+		break;	
 	}
 }
 try {
-	$data = $mapper->findCollection($from, $to);
+	$data = $mapper->findAll();
 } catch(Exception $e) {
 	die(json_encode(array("result" => $e->getMessage())));
 }
