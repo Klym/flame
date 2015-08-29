@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html ng-app="adminApp">
 <head>
 <meta charset="utf-8">
@@ -14,7 +14,14 @@
 <script src="js/app_configs.js"></script>
 <script src="js/data.js"></script>
 <script src="js/md5.js"></script>
-<base href="http://clan-flame.loc/admin/">
+<script>
+	var href = document.location.href.split("/");
+	var base = href[2];
+	var baseEl = document.createElement("base");
+	baseEl.setAttribute("href", "http://" + base + "/admin/");
+	var head = document.getElementsByTagName("head")[0];
+	head.appendChild(baseEl);
+</script>
 <title>Flame Admin</title>
 </head>
 <body>

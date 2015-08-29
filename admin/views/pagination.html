@@ -1,17 +1,19 @@
 <nav class="pull-right">
   <ul class="pagination">
+    <li class="previous {{prevDis}}"><a href="#" ng-click="toFirst()"><span aria-hidden="true">&larr;</span> Первая</a></li>
     <li class="{{prevDis}}">
       <a href="#" aria-label="Previous" ng-click="prevPage()">
         <span aria-hidden="true">&laquo;</span>
       </a>
     </li>
-    <li ng-repeat="i in count track by $index" class="{{selected == ($index + 1) ? 'active' : ''}}">
-        <a href="#" ng-click="changePage($index + 1)">{{$index + 1}}</a>
+    <li ng-repeat="i in count | getPaginationPages : { selected: selected } track by i" class="{{selected == (i + 1) ? 'active' : ''}}">
+        <a href="#" ng-click="changePage(i + 1)">{{i + 1}}</a>
     </li>
     <li class="{{nextDis}}">
       <a href="#" aria-label="Next" ng-click="nextPage()">
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>
+    <li class="next {{nextDis}}"><a href="#" ng-click="toLast()">Последняя <span aria-hidden="true">&rarr;</span></a></li>
   </ul>
 </nav>

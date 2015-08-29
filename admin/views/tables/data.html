@@ -10,7 +10,10 @@
                 	<button type="button" ng-click="goAdd()" class="btn btn-success">Добавить &nbsp;<span class="glyphicon glyphicon-plus"></span></button>
                 </div>
                 <div class="col-md-1">
-                	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select><br>
+                	<select class="form-control" style="width:70px; padding:0 3px;" ng-model="limit" ng-change="changeLimit(limit)" ng-options="limit for limit in limits"></select>
+                </div>
+                <div class="col-md-9 pull-right">
+                	<ng-include src="'views/pagination.html'" ng-controller="paginationCtrl"></ng-include>
                 </div>
 	  		</div>
             <table class="table table-bordered table-hover">
@@ -37,7 +40,6 @@
                     </td>
                 </tr>
             </table>
-            <ng-include src="'views/pagination.html'" ng-controller="paginationCtrl"></ng-include>
           </div>
         </div>
     </div>
