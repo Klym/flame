@@ -1,5 +1,8 @@
 <?php
 
+session_start();
+require("check.php");
+
 require("blocks/autoload.php");
 require("blocks/db.php");
 

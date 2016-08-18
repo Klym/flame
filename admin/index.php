@@ -1,4 +1,8 @@
-﻿<!doctype html>
+<?php
+session_start();
+require("check.php");
+?>
+<!doctype html>
 <html ng-app="adminApp">
 <head>
 <meta charset="utf-8">
