@@ -664,6 +664,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	if (cache.get("data") != undefined) {
 		$scope.data = JSON.parse(cache.get("data"));
 		for (var i = 0; i < $scope.data.length; i++) {
+			$scope.data[i].date = new Date($scope.data[i].date);
 			// Преобразуем строковые значения в числовые
 			$scope.data[i].cat = +$scope.data[i].cat;
 			$scope.data[i].author = +$scope.data[i].author;
@@ -701,10 +702,29 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
 		var currentId = searchObj.searchId($scope.data, id);
-		var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> не удалена.";
-		$scope.data.splice(currentId, 1);
-		showSuccessMessage.show(successMessage);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=data");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
+				$scope.data.splice(currentId, 1);
+				cache.put("data", JSON.stringify($scope.data));
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> не удалена.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
 	
 	$scope.goUpdate = function(id) {
