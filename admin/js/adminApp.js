@@ -699,6 +699,44 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 		});
     });
 	
+	$scope.newDataItem = { view: 0, date: new Date() };
+	$scope.buttonDisable = false;
+	
+	$scope.goAdd = function() {
+		$scope.$emit("changeRoute", {
+			route: "data_add",
+			notAnotherPage: true
+		});
+	}
+	
+	$scope.add = function() {
+		$scope.data.push($scope.newDataItem);
+		$scope.buttonDisable = true;
+		
+		// Отправляем данные на сервер
+		var promise = $http.post("putData.php?type=data", JSON.stringify($scope.newDataItem));
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			// Ожидаем от сервера возврат идентификатора нового объекта
+			if (isNaN(response.data.result)) {
+				console.log(response.data);
+				rejected();
+			} else {
+				// Устанавливаем id добавленному объекту
+				$scope.data[$scope.data.length - 1].id = parseInt(response.data.result);
+				cache.put("data", JSON.stringify($scope.data));
+				var successMessage = "Заметка <strong>\"" + $scope.newDataItem.title + "\"</strong> успешно добавлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.newDataItem.title + "\"</strong> не добавлена.";
+			showErrorMessage.show(errorMessage);
+		}
+	}
+	
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту заметку?")) return;
 		var currentId = searchObj.searchId($scope.data, id);

@@ -1,0 +1,62 @@
+<div class="row">
+	<div class="col-md-12">
+    	<div class="panel panel-success" ng-controller="dataCtrl">
+          <div class="panel-heading">
+              <h3 class="panel-title">Добавление материалов</h3>
+          </div>
+          <div class="panel-body">
+          	<div class="row">
+            	<form class="form-horizontal form" name="updateForm" ng-submit="add()">
+                  <div class="form-group">
+                    <label for="dataTitle" class="col-sm-2 control-label">Название</label>
+                    <div class="col-sm-3">
+                      <input type="text" class="form-control" id="dataTitle" ng-model="newDataItem.title" required>
+                    </div>
+                  </div>
+                  <div class="form-group" ng-controller="categoryCtrl">
+                  	<label for="dataCat" class="col-sm-2 control-label">Категория</label>
+                    <div class="col-sm-3">
+                    	<select class="form-control" id="dataCat"  ng-model="newDataItem.cat" ng-options="$eval(category.id) as category.title for category in categories"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="catDescription" class="col-sm-2 control-label">Краткое описание</label>
+                    <div class="col-sm-5">
+                    	<textarea class="form-control" id="catDescription" rows="3" ng-model="newDataItem.meta_d" required></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="catKeywords" class="col-sm-2 control-label">Ключевые слова</label>
+                    <div class="col-sm-5">
+                    	<textarea class="form-control" id="catKeywords" rows="3" ng-model="newDataItem.meta_k" required></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="catText" class="col-sm-2 control-label">Описание</label>
+                    <div class="col-sm-7">
+                    	<textarea class="form-control" id="catText" rows="8" ng-model="newDataItem.description" required></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                  	<label for="catText" class="col-sm-2 control-label">Текст</label>
+                    <div class="col-sm-7">
+                    	<textarea class="form-control" id="catText" rows="8" ng-model="newDataItem.text" required></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group"  ng-controller="userCtrl">
+                  	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
+                    <div class="col-sm-2">
+                    	<select class="form-control" id="userGroup" ng-model="newDataItem.author" ng-options="$eval(user.id) as user.login for user in (users | filter : {access : 1})"></select>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                      <input type="submit" class="btn btn-primary" value="Добавить">
+                    </div>
+                  </div>
+                </form>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
