@@ -663,6 +663,11 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	
 	if (cache.get("data") != undefined) {
 		$scope.data = JSON.parse(cache.get("data"));
+		for (var i = 0; i < $scope.data.length; i++) {
+			// Преобразуем строковые значения в числовые
+			$scope.data[i].cat = +$scope.data[i].cat;
+			$scope.data[i].author = +$scope.data[i].author;
+		}
 	} else {
 		$http.get("getData.php?type=data").success(function(response) {
 			$scope.data = response;
