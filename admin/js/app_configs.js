@@ -188,9 +188,7 @@ adminApp.filter("getPaginationPages", function() {
 			var from = (params.selected <= count / 2) ? 0 : params.selected - count / 2;
 			if (params.selected + count / 2 >= temp.length) {
 				from -= params.selected + count / 2 - temp.length;
-				if (from < 0) {
-					from = 0;
-				}
+				from = (from < 0) ? 0 : from;
 			}
 			// Обрезаем нужную нам часть массива
 			return temp.splice(from, count);
