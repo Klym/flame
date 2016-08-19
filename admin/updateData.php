@@ -28,6 +28,10 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 			$mapper = new CategoryMapper($pdo);
 			$object = new Category($data->id, $data->title, $data->text, $data->meta_d, $data->meta_k);
 		break;
+		case "data":
+			$mapper = new DataItemMapper($pdo);
+			$object = new DataItem($data->id,  $data->title, $data->text, $data->cat, $data->meta_d, $data->meta_k, $data->description, $data->view, $data->author, $data->date);
+		break;
 		case "sostav":
 			$mapper = new SostavMapper($pdo);
 			$object = new Sostav($data->id, $data->name, $data->scores, $data->rang, $data->dol, $data->fullName, $data->skype);

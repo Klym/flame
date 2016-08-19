@@ -737,12 +737,29 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	}
 	
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.buttonDisable = true;
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php?type=data", JSON.stringify($scope.data[$scope.currentId]));
+		promise.then(fulfilled, rejected);
 		
-		var successMessage = "Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> не обновлена.";
-		showSuccessMessage.show(successMessage);
-	}
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				cache.put("data", JSON.stringify($scope.data));
+				var successMessage = "Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> успешно обновлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Заметка <strong>\"" + $scope.data[$scope.currentId].title + "\"</strong> не обновлена.";
+			showErrorMessage.show(errorMessage);
+		}
+	}	
 });
 
 adminApp.controller("newsCtrl", function($scope, $rootScope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
