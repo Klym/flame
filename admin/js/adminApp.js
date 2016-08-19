@@ -77,6 +77,10 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 		templateUrl: "views/forms/sostav_update.html"
 	});
 	
+	$routeProvider.when("/logout", {
+		templateUrl: "logout.php"
+	});
+	
 	$routeProvider.otherwise({
 		templateUrl: "views/main.html"
 	});

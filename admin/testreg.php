@@ -15,15 +15,14 @@ if (isset($login) && isset($password)) {
 	$password = Data::checkData($password);
 	$password = strrev(md5($password));
 
-	//$moderator = new moderators\Moderator($pdo);
-	//try {
-		//$moderator->checkUser(Data::checkData($login), $password);
-		//$_SESSION = $moderator->serialize();
+	$checkObj = new Check($pdo);
+	if ($checkObj->check($login, $password)) {
 		$_SESSION['login'] = $login;
 		echo "<html><head><meta http-equiv='refresh' content='0; url=index.php'></head></html>";
-	//} catch (Exception $e) {
-		//die($e->getMessage());
-	//}
+	} else {
+		echo 'Неверный логин или пароль';
+		echo "<html><head><meta http-equiv='refresh' content='2; url=login.php'></head></html>";
+	}
 } else {
 	die("<html><head><meta http-equiv='refresh' content='2; url=login.php'></head>Вы не ввели не всю информацию, вернитесь и заполните все поля.</html>");
 }
