@@ -41,6 +41,6 @@ require("check.php");
         </div>
     </div>
 </div>
-<footer class="well well-sm pull-right">Powered by Klym | admin.clan-flame.ru © 2014-2015</footer>
+<footer class="well well-sm pull-right">Powered by Klym | admin.clan-flame.ru © 2014-<?=date("Y");?></footer>
 </body>
 </html>
