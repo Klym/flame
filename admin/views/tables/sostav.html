@@ -25,7 +25,7 @@
                     <th>Действие</th>
                   </tr>
               </thead>
-                <tr ng-repeat="player in players | getItems: { limit: limit, page: page - 1 } | orderBy: sortProp">
+                <tr ng-repeat="player in players | orderBy: sortProp">
                     <td>{{player.name}}</td>
                     <td>{{player.scores}}</td>
                     <td ng-controller="rangCtrl" define-player-rang></td>

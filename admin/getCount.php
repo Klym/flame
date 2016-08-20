@@ -4,20 +4,8 @@ require("check.php");
 
 require("blocks/autoload.php");
 require("blocks/db.php");
-
-if (isset($_GET['id'])) {
-	$id = $_GET['id'];
-}
-
-if (isset($_GET["from"]) && isset($_GET["to"])) {
-	$from = $_GET["from"];
-	$to = $_GET["to"];
-	$isCollection = true;
-}
-
 if (isset($_GET['type']) && !empty($_GET['type'])) {
 	$type = $_GET['type'];
-	
 	switch($type) {
 		case "pages":
 			$mapper = new PageMapper($pdo);
@@ -39,20 +27,13 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 		break;
 		default:
 			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
-		break;	
+		break;
 	}
 }
 try {
-	if ($isCollection) {
-		$data = $mapper->findCollection($from, $to);
-	} else if (isset($id)) {
-		$data = $mapper->find($id);
-	} else {
-		$data = $mapper->findAll();
-	}
+	$count = $mapper->getCount();
 } catch(Exception $e) {
 	die(json_encode(array("result" => $e->getMessage())));
 }
-
-echo $data;
+echo $count;
 ?>

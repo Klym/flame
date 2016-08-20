@@ -9,18 +9,42 @@ abstract class Mapper {
 	
 	protected abstract function doCreateObject(array $array);
 	
+	function getCount() {
+ 		$result = $this->selectCount->execute();
+ 		if (!$result) {
+ 			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
+ 		}
+ 		$this->selectCount->setFetchMode(PDO::FETCH_ASSOC);
+ 		$row = $this->selectCount->fetch();
+ 		return $row['count'];
+ 	}
+	
 	function find($id) {
-		$this->selectStmt->execute(array($id));
+		$this->selectStmt->bindValue("1", (int)$id, PDO::PARAM_INT);
+		$this->selectStmt->execute();
 		$array = $this->selectStmt->fetch();
 		$this->selectStmt->closeCursor();
 		if (!is_array($array)) return null;
 		if (!isset($array["id"])) return null;
-		$object = $this->createObject($array);
-		return $object;
+		return json_encode(array($array));
+	}
+	
+	function findCollection($from, $to) {
+ 		$this->selectCollectionStmt->bindValue("1", (int)$from, PDO::PARAM_INT);
+ 		$this->selectCollectionStmt->bindValue("2", (int)$to, PDO::PARAM_INT);
+ 		$result = $this->selectCollectionStmt->execute();
+		if (!$result) {
+			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
+		}
+		$this->selectCollectionStmt->setFetchMode(PDO::FETCH_ASSOC);
+		while($fetch = $this->selectCollectionStmt->fetch()) {
+			$rows[] = $fetch;
+		}
+		return json_encode($rows);
 	}
 	
 	function findAll() {
-		$result = $this->selectAllStmt->execute(array());
+		$result = $this->selectAllStmt->execute();
 		if (!$result) {
 			throw new Exception("Ошибка. Данные по запросу не могут быть извлечены");
 		}

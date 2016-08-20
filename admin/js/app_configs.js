@@ -92,17 +92,6 @@ adminApp.constant("consts", function() {
 	}
 }());
 
-// Фильтр преобразвования строки в объект типа Date
-adminApp.filter("strToDate", function() {
-	return function(value) {
-		if (angular.isString(value)) {
-			return new Date(value);
-		} else {
-			return value;
-		}
-	}
-});
-
 // Директива определения группы пользователя
 adminApp.directive("defineUserGroup", function(searchObj, $http, $cacheFactory) {
 	return function(scope, element) {
@@ -122,16 +111,10 @@ adminApp.directive("defineUserGroup", function(searchObj, $http, $cacheFactory) 
 // Директива определения категории материалов
 adminApp.directive("defineCat", function(searchObj, $http, $cacheFactory) {
 	return function (scope, element) {
-		if (scope.categories == undefined) {
-			$http.get("getData.php?type=categories").success(function(response) {
-				scope.categories = response;		
-				var cat = searchObj.searchId(scope.categories, scope.dataItem.cat);
-				element.append(document.createTextNode(scope.categories[cat].title));
-			});
-		} else {
-			var cat = searchObj.searchId(scope.categories, scope.dataItem.cat);
-			element.append(document.createTextNode(scope.categories[cat].title));
-		}
+		$http.get("getData.php?type=categories", {cache: true}).success(function(response) {
+			var cat = searchObj.searchId(response, scope.dataItem.cat);
+			element.append(document.createTextNode(response[cat].title));
+		});
 	}
 });
 
@@ -148,21 +131,6 @@ adminApp.directive("definePlayerRang", function(searchObj) {
 	return function(scope, element) {
 		var rang = searchObj.searchId(scope.rangs, scope.player.rang);
 		element.append(document.createTextNode(scope.rangs[rang].rangName));
-	}
-});
-
-// Фильтр получающий массив данных в зависимости от выбранной страницы и количества
-adminApp.filter("getItems", function() {
-	return function (items, params) {
-		if (angular.isArray(items) && angular.isObject(params)) {
-			var temp = new Array(items.length);
-			for (var i = 0; i < temp.length; i++) {
-				temp[i] = items[i];
-			}
-			return temp.splice(params.limit * params.page, params.limit);
-		} else {
-			return items;
-		}
 	}
 });
 
