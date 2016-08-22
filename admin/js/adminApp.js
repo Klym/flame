@@ -663,7 +663,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 	
 	var dataCache = $cacheFactory.get("dataCache");
 	
-	$http.get("getCount.php?type=data", {cache: true}).success(function(response) {
+	$http.get("getCount.php?type=data", {cache: dataCache}).success(function(response) {
 		$scope.$emit("changeCount", {
 			key: "data",
 			val: response
@@ -738,6 +738,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				// Устанавливаем id добавленному объекту
 				$scope.data[$scope.data.length - 1].id = parseInt(response.data.result);
 				dataCache.removeAll();
+				$rootScope.counts.data++;
 				var successMessage = "Заметка <strong>\"" + $scope.newDataItem.title + "\"</strong> успешно добавлена.";
 				showSuccessMessage.show(successMessage);
 			}
@@ -766,6 +767,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
 				$scope.data.splice(currentId, 1);
 				dataCache.removeAll();
+				$rootScope.counts.data--;
 				showSuccessMessage.show(successMessage);
 			}
 		}
