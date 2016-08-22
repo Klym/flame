@@ -98,7 +98,14 @@ adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheF
 	$scope.limit = 3;						// Количество выводимых данных
 	$scope.limits = [5, 10, 25, 50, 100];	// Массив возможных лимитов
 	
-	$cacheFactory("dataCache");		// Создаем кэш для хранения данных из БД
+	// Создаем кэш для хранения данных из БД
+	$cacheFactory("counts");
+	$cacheFactory("pages");
+	$cacheFactory("users");
+	$cacheFactory("categories");
+	$cacheFactory("data");
+	$cacheFactory("news");
+	$cacheFactory("sostav");
 	
 	// Записываем в харнилище значение страницы в pagination и свойство сортировки
 	window.sessionStorage.setItem("nav", 1);
@@ -183,7 +190,7 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 
 adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {	
 	// Получаем кэш с данными
-	var cache = $cacheFactory.get("dataCache");
+	var cache = $cacheFactory.get("data");
 	
 	$http.get("getData.php?type=pages&from=0&to=3", {cache: true}).success(function(response) {
 		$scope.pages = response;
@@ -327,7 +334,7 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 });
 
 adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	var cache = $cacheFactory.get("dataCache");
+	var cache = $cacheFactory.get("data");
 	
 	if (cache.get("users") != undefined) {
 		$scope.users = JSON.parse(cache.get("users"));
@@ -502,7 +509,7 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 });
 
 adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
-	var cache = $cacheFactory.get("dataCache");
+	var cache = $cacheFactory.get("data");
 	
 	if (cache.get("usergroups") != undefined) {
 		$scope.groups = JSON.parse(cache.get("usergroups"));
@@ -517,7 +524,10 @@ adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
 
 adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	
-	$http.get("getCount.php?type=categories", {cache: true}).success(function(response) {
+	var countCache = $cacheFactory.get("counts");
+	var dataCache = $cacheFactory.get("categories");
+	
+	$http.get("getCount.php?type=categories", {cache: countCache}).success(function(response) {
 		$scope.$emit("changeCount", {
 			key: "categories",
  			val: response
@@ -526,8 +536,9 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 			val: response
 		});
     });
-	
-	$http.get("getData.php?type=categories", {cache: true}).success(function(response) {
+
+	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	$http.get("getData.php?type=categories&" + params, {cache: dataCache}).success(function(response) {
 		$scope.categories = response;
 		if (++$rootScope.loaded == $rootScope.arrCount) {
 			$rootScope.showLoader = false;
@@ -535,16 +546,16 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 	});
 	
 	$scope.$on("changeLimit", function(event, args) {
-		$http.get("getData.php?type=categories&from=0&to=" + $scope.limit + "", {cache: true}).success(function(response) {
-			$scope.data = response;
+		$http.get("getData.php?type=categories&from=0&to=" + $scope.limit + "", {cache: dataCache}).success(function(response) {
+			$scope.categories = response;
 		});
 	});
 	
 	$scope.$on("changePage", function(event, args) {
  		var from = $scope.limit * (args.page - 1);
  		var count = parseInt($scope.limit);
-		$http.get("getData.php?type=categories&from=" + from + "&to=" + count + "", {cache: true}).success(function(response) {
-			$scope.data = response;
+		$http.get("getData.php?type=categories&from=" + from + "&to=" + count + "", {cache: dataCache}).success(function(response) {
+			$scope.categories = response;
 		});
  	});
 	
@@ -587,6 +598,9 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 			} else {
 				// Устанавливаем id добавленному объекту
 				$scope.categories[$scope.categories.length - 1].id = parseInt(response.data.result);
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.categories++;
 				var successMessage = "Категория <strong>\"" + $scope.newCategory.title + "\"</strong> успешно добавлена.";
 				showSuccessMessage.show(successMessage);
 			}
@@ -614,6 +628,9 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 				$scope.buttonDisable = false;
 				var successMessage = "Категория <strong>\"" + $scope.categories[currentId].title + "\"</strong> успешно удалена.";
 				$scope.categories.splice(currentId, 1);
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.categories--;
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -626,10 +643,9 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 	}
 	
 	$scope.goUpdate = function(id) {
-		var currentId = searchObj.searchId($scope.categories, id);
 		$scope.$emit("changeRoute", {
 			route: "categories_update",
-			id: currentId,
+			id: id,
 			notAnotherPage: true
 		});
 	}
@@ -637,7 +653,7 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 	$scope.update = function() {
 		$scope.buttonDisable = true;
 		// Отправка данных на сервер и помещение в кэш
-		var promise = $http.post("updateData.php?type=categories", JSON.stringify($scope.categories[$scope.currentId]));
+		var promise = $http.post("updateData.php?type=categories", JSON.stringify($scope.categories[0]));
 		promise.then(fulfilled, rejected);
 		
 		function fulfilled(response) {
@@ -646,14 +662,15 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 				rejected();
 			} else {
 				$scope.buttonDisable = false;
-				var successMessage = "Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> успешно обновлена.";
+				dataCache.removeAll();
+				var successMessage = "Категория <strong>\"" + $scope.categories[0].title + "\"</strong> успешно обновлена.";
 				showSuccessMessage.show(successMessage);
 			}
 		}
 		
 		function rejected() {
 			$scope.buttonDisable = false;
-			var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[$scope.currentId].title + "\"</strong> не обновлена.";
+			var errorMessage = "Ошибка! Категория <strong>\"" + $scope.categories[0].title + "\"</strong> не обновлена.";
 			showErrorMessage.show(errorMessage);
 		}
 	}
@@ -661,9 +678,10 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 
 adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	
-	var dataCache = $cacheFactory.get("dataCache");
+	var countCache = $cacheFactory.get("counts");
+	var dataCache = $cacheFactory.get("data");
 	
-	$http.get("getCount.php?type=data", {cache: dataCache}).success(function(response) {
+	$http.get("getCount.php?type=data", {cache: countCache}).success(function(response) {
 		$scope.$emit("changeCount", {
 			key: "data",
 			val: response
@@ -738,6 +756,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				// Устанавливаем id добавленному объекту
 				$scope.data[$scope.data.length - 1].id = parseInt(response.data.result);
 				dataCache.removeAll();
+				countCache.removeAll();
 				$rootScope.counts.data++;
 				var successMessage = "Заметка <strong>\"" + $scope.newDataItem.title + "\"</strong> успешно добавлена.";
 				showSuccessMessage.show(successMessage);
@@ -767,6 +786,7 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				var successMessage = "Заметка <strong>\"" + $scope.data[currentId].title + "\"</strong> успешно удалена.";
 				$scope.data.splice(currentId, 1);
 				dataCache.removeAll();
+				countCache.removeAll();
 				$rootScope.counts.data--;
 				showSuccessMessage.show(successMessage);
 			}
@@ -870,7 +890,7 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, showSuccessMessage,
 
 adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	// Получаем кэш с данными
-	var cache = $cacheFactory.get("dataCache");
+	var cache = $cacheFactory.get("data");
 	
 	if (cache.get("players") != undefined) { // Проверяем есть ли там данные и достаем их
 		$scope.players = JSON.parse(cache.get("players"));
