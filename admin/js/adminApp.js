@@ -527,7 +527,7 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 		});
     });
 	
-	$http.get("getData.php?type=categories&from=0&to=5", {cache: true}).success(function(response) {
+	$http.get("getData.php?type=categories", {cache: true}).success(function(response) {
 		$scope.categories = response;
 		if (++$rootScope.loaded == $rootScope.arrCount) {
 			$rootScope.showLoader = false;

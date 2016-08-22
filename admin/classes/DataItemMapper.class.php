@@ -6,7 +6,7 @@ class DataItemMapper extends Mapper {
 		parent::__construct($pdo);
 		$this->selectCount = $this->PDO->prepare("SELECT COUNT(id) AS count FROM data");
 		$this->selectStmt = $this->PDO->prepare("SELECT * FROM data WHERE id=?");
-		$this->selectCollectionStmt = $this->PDO->prepare("SELECT * FROM data LIMIT ?, ?");
+		$this->selectCollectionStmt = $this->PDO->prepare("SELECT id, cat, title, meta_d FROM data LIMIT ?, ?");
 		$this->selectAllStmt = $this->PDO->prepare("SELECT * FROM data LIMIT");
 		$this->insertStmt = $this->PDO->prepare("INSERT INTO data (title, text, cat, meta_d, meta_k, description, view, author, date) VALUES (?,?,?,?,?,?,?,?,?)");
 		$this->updateStmt = $this->PDO->prepare("UPDATE data SET title=?, text=?, cat=?, meta_d=?, meta_k=?, description=?, view=?, author=?, date=? WHERE id=?");
