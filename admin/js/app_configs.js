@@ -95,16 +95,11 @@ adminApp.constant("consts", function() {
 // Директива определения группы пользователя
 adminApp.directive("defineUserGroup", function(searchObj, $http, $cacheFactory) {
 	return function(scope, element) {
-		if (scope.groups == undefined) {
-			$http.get("getData.php?type=usergroups").success(function(response) {
-				scope.groups = response;		
-				var cat = searchObj.searchId(scope.groups, scope.user.access);
-				element.append(document.createTextNode(scope.groups[cat].title));
-			});
-		} else {
+		$http.get("getData.php?type=usergroups", {cache: true}).success(function(response) {
+			scope.groups = response;		
 			var ugid = searchObj.searchId(scope.groups, scope.user.access);
 			element.append(document.createTextNode(scope.groups[ugid].title));
-		}
+		});
 	}
 });
 

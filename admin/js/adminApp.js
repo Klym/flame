@@ -523,17 +523,10 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 	}
 });
 
-adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
-	var cache = $cacheFactory.get("data");
-	
-	if (cache.get("usergroups") != undefined) {
-		$scope.groups = JSON.parse(cache.get("usergroups"));
-	} else {
-		$http.get("getData.php?type=usergroups").success(function(response) {
-			$scope.groups = response;
-			cache.put("usergroups", JSON.stringify(response));
-		});
-	}
+adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {	
+	$http.get("getData.php?type=usergroups", {cache: true}).success(function(response) {
+		$scope.groups = response;
+	});
 });
 
 
