@@ -10,25 +10,25 @@
                   <div class="form-group">
                     <label for="pageTitle" class="col-sm-2 control-label">Название</label>
                     <div class="col-sm-3">
-                      <input type="text" name="pageTitle" class="form-control" id="pageTitle" ng-model="pages[currentId].title" required>
+                      <input type="text" name="pageTitle" class="form-control" id="pageTitle" ng-model="pages[0].title" required>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="pageCode" class="col-sm-2 control-label">Страница</label>
                     <div class="col-sm-2">
-                      <input type="text" name="pageCode" class="form-control" id="pageCode" ng-model="pages[currentId].page" required>
+                      <input type="text" name="pageCode" class="form-control" id="pageCode" ng-model="pages[0].page" required>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="pageDescription" class="col-sm-2 control-label">Описание</label>
                     <div class="col-sm-5">
-                    	<textarea class="form-control" name="pageDescription" id="pageDescription" rows="3" ng-model="pages[currentId].meta_d" required></textarea>
+                    	<textarea class="form-control" name="pageDescription" id="pageDescription" rows="3" ng-model="pages[0].meta_d" required></textarea>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="pageKeywords" class="col-sm-2 control-label">Ключевые слова</label>
                     <div class="col-sm-5">
-                    	<textarea class="form-control" name="pageKeywords" id="pageKeywords" rows="3" ng-model="pages[currentId].meta_k" required></textarea>
+                    	<textarea class="form-control" name="pageKeywords" id="pageKeywords" rows="3" ng-model="pages[0].meta_k" required></textarea>
                     </div>
                   </div>
                   <div class="form-group">

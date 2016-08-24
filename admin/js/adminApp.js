@@ -323,10 +323,9 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 	
 	// Метод перенаправления на страницу редактирования данных
 	$scope.goUpdate = function(id) {
-		var currentId = searchObj.searchId($scope.pages, id);
 		$scope.$emit("changeRoute", {
 			route: "pages_update",
-			id: currentId,			// id выбранного элемента массива
+			id: id,					// id выбранного элемента массива
 			notAnotherPage: true	// отвечает за изменение состояния данных о текущей странице
 		});
 	}
@@ -334,8 +333,8 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 	// Метод отправки новых данных на сервер
 	$scope.update = function() {
 		$scope.buttonDisable = true;
-		// Отправка данных на сервер и помещение в кэш
-		var promise = $http.post("updateData.php?type=pages", JSON.stringify($scope.pages[$scope.currentId]));
+		// Отправка данных на сервер
+		var promise = $http.post("updateData.php?type=pages", JSON.stringify($scope.pages[0]));
 		promise.then(fulfilled, rejected);
 		
 		function fulfilled(response) {
@@ -344,15 +343,15 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 				rejected();
 			} else {
 				$scope.buttonDisable = false;
-				cache.put("pages", JSON.stringify($scope.pages));
-				var successMessage = "Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> успешно обновлена.";
+				dataCache.removeAll();
+				var successMessage = "Страница <strong>\"" + $scope.pages[0].title + "\"</strong> успешно обновлена.";
 				showSuccessMessage.show(successMessage);
 			}
 		}
 		
 		function rejected() {
 			$scope.buttonDisable = false;
-			var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[$scope.currentId].title + "\"</strong> не обновлена.";
+			var errorMessage = "Ошибка! Страница <strong>\"" + $scope.pages[0].title + "\"</strong> не обновлена.";
 			showErrorMessage.show(errorMessage);
 		}
 	}
