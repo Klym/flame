@@ -308,7 +308,12 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 				// Очищаем кэш 
 				dataCache.removeAll();
 				countCache.removeAll();
+				// Инициируем событие обновления количества данных для контроллера навигации
 				$rootScope.counts.pages--;
+				$scope.$broadcast("changeCount", {
+					key: "pages",
+					val: $rootScope.counts.pages
+				});
 				// Вызываем сервис вывода сообщения
 				showSuccessMessage.show(successMessage);
 			}
@@ -501,6 +506,10 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 				dataCache.removeAll();
 				countCache.removeAll();
 				$rootScope.counts.users--;
+				$scope.$broadcast("changeCount", {
+					key: "users",
+					val: $rootScope.counts.users
+				});
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -661,6 +670,10 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 				dataCache.removeAll();
 				countCache.removeAll();
 				$rootScope.counts.categories--;
+				$scope.$broadcast("changeCount", {
+					key: "categories",
+					val: $rootScope.counts.categories
+				});
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -818,6 +831,10 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 				dataCache.removeAll();
 				countCache.removeAll();
 				$rootScope.counts.data--;
+				$scope.$broadcast("changeCount", {
+					key: "data",
+					val: $rootScope.counts.data
+				});
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -919,26 +936,46 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, showSuccessMessage,
 });
 
 adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	// Получаем кэш с данными
-	var cache = $cacheFactory.get("data");
 	
-	if (cache.get("players") != undefined) { // Проверяем есть ли там данные и достаем их
-		$scope.players = JSON.parse(cache.get("players"));
+	var countCache = $cacheFactory.get("counts");
+	var dataCache = $cacheFactory.get("data");
+	
+	$http.get("getCount.php?type=sostav", {cache: countCache}).success(function(response) {
+		$scope.$emit("changeCount", {
+			key: "players",
+			val: response
+		});
+		$scope.$broadcast("changeCount", {
+			val: response
+		});
+	});
+	
+	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	$http.get("getData.php?type=sostav&" + params, {cache: dataCache}).success(function(response) {
+		$scope.players = response;
 		for (var i = 0; i < $scope.players.length; i++) {
 			// Преобразуем строковые значения в числовые
 			$scope.players[i].scores = +$scope.players[i].scores;
 			$scope.players[i].rang = +$scope.players[i].rang;
 		}
-	} else {
-		// Иначе посылаем запрос на сервер и заносим данные в кэш
-		$http.get("getData.php?type=sostav").success(function(response) {
+		if (++$rootScope.loaded == $rootScope.arrCount) {
+			$rootScope.showLoader = false;
+		}
+	});
+		
+	$scope.$on("changeLimit", function(event, args) {
+		$http.get("getData.php?type=sostav&from=0&to=" + $scope.limit + "", {cache: dataCache}).success(function(response) {
 			$scope.players = response;
-			cache.put("players", JSON.stringify(response));
-			if (++$rootScope.loaded == $rootScope.arrCount) {
-				$rootScope.showLoader = false;
-			}
 		});
-	}
+	});
+	
+	$scope.$on("changePage", function(event, args) {
+ 		var from = $scope.limit * (args.page - 1);
+ 		var count = parseInt($scope.limit);
+		$http.get("getData.php?type=sostav&from=" + from + "&to=" + count + "", {cache: dataCache}).success(function(response) {
+			$scope.players = response;
+		});
+ 	});
 	
 	$scope.sorts = [{ code: "name", name: "Имя" },  { code: "scores", name: "Очки" }, { code: "rang", name: "Ранг" }];
 	
@@ -949,16 +986,6 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 		changeSortService.changeSort(propNum);
 		$scope.sortProp = changeSortService.sortProp;
 	}
-	
-	$scope.$watch("players.length", function(newValue) {
-		$scope.$emit("changeCount", {
-			key: "players",
-			val: newValue
-		});
-		$scope.$broadcast("changeCount", {
-			val: newValue
-		});
-    });
 	
 	$scope.buttonDisable = false;
 	
@@ -987,7 +1014,9 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 			} else {
 				// Устанавливаем id добавленному объекту
 				$scope.players[$scope.players.length - 1].id = parseInt(response.data.result);
-				cache.put("players", JSON.stringify($scope.players));
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.players++;
 				var successMessage = "Игрок <strong>\"" + $scope.newPlayer.name + "\"</strong> успешно добавлен.";
 				showSuccessMessage.show(successMessage);
 			}
@@ -1015,7 +1044,13 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 				$scope.buttonDisable = false;
 				var successMessage = "Игрок <strong>\"" + $scope.players[currentId].name + "\"</strong> успешно удален.";
 				$scope.players.splice(currentId, 1);
-				cache.put("players", JSON.stringify($scope.players));
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.players--;
+				$scope.$broadcast("changeCount", {
+					key: "players",
+					val: $rootScope.counts.players
+				});
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -1028,10 +1063,9 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 	}
 	
 	$scope.goUpdate = function(id) {
-		var currentId = searchObj.searchId($scope.players, id);		
 		$scope.$emit("changeRoute", {
 			route: "sostav_update",
-			id: currentId,
+			id: id,
 			notAnotherPage: true
 		});
 	}
@@ -1039,7 +1073,7 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 	$scope.update = function() {
 		$scope.buttonDisable = true;
 		// Отправка данных на сервер и помещение в кэш
-		var promise = $http.post("updateData.php?type=sostav", JSON.stringify($scope.players[$scope.currentId]));
+		var promise = $http.post("updateData.php?type=sostav", JSON.stringify($scope.players[0]));
 		promise.then(fulfilled, rejected);
 		
 		function fulfilled(response) {
@@ -1048,15 +1082,15 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 				rejected();
 			} else {
 				$scope.buttonDisable = false;
-				cache.put("players", JSON.stringify($scope.players));
-				var successMessage = "Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> успешно обновлены.";
+				dataCache.removeAll();
+				var successMessage = "Данные игрока <strong>\"" + $scope.players[0].name + "\"</strong> успешно обновлены.";
 				showSuccessMessage.show(successMessage);
 			}
 		}
 		
 		function rejected() {
 			$scope.buttonDisable = false;
-			var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[$scope.currentId].name + "\"</strong> не обновлены.";
+			var errorMessage = "Ошибка! Данные игрока <strong>\"" + $scope.players[0].name + "\"</strong> не обновлены.";
 			showErrorMessage.show(errorMessage);
 		}
 	}
@@ -1066,13 +1100,22 @@ adminApp.controller("rangCtrl", function($http, $scope, searchObj) {
 	
 	$http.get("getData.php?type=rangs", {cache: true}).success(function(response) {
 		$scope.rangs = response;
+		// Удаляем последний(системный) ранг
+		delete $scope.rangs[$scope.rangs.length - 1];
+		$scope.rangs.length--;
+		for (var i = 0; i < $scope.rangs.length; i++) {
+			// Преобразуем строковые значения в числовые
+			$scope.rangs[i].id = +$scope.rangs[i].id;
+			$scope.rangs[i].minScores = parseFloat($scope.rangs[i].minScores);
+			$scope.rangs[i].maxScores = parseFloat($scope.rangs[i].maxScores);
+		}
 	});
 	
 	// Меняем очки при изменении ранга
 	$scope.changeScores = function(rangId) {
 		var rang = searchObj.searchId($scope.rangs, rangId);
-		if ($scope.players[$scope.currentId]) {
-			$scope.players[$scope.currentId].scores = $scope.rangs[rang].minScores;
+		if ($scope.players[0]) {
+			$scope.players[0].scores = $scope.rangs[rang].minScores;
 		} else {
 			$scope.newPlayer.scores = $scope.rangs[rang].minScores;
 		}
@@ -1082,8 +1125,8 @@ adminApp.controller("rangCtrl", function($http, $scope, searchObj) {
 	$scope.changeRang = function(newScores) {
 		for (var i = 0; i < $scope.rangs.length; i++) {
 			if (newScores >= $scope.rangs[i].minScores && newScores <= $scope.rangs[i].maxScores) {
-				if ($scope.players[$scope.currentId]) {
-					$scope.players[$scope.currentId].rang = $scope.rangs[i].id;
+				if ($scope.players[0]) {
+					$scope.players[0].rang = $scope.rangs[i].id;
 				} else {
 					$scope.newPlayer.rang = $scope.rangs[i].id;
 				}
