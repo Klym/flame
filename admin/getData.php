@@ -37,6 +37,9 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 		case "sostav":
 			$mapper = new SostavMapper($pdo);
 		break;
+		case "rangs":
+			$mapper = new RangMapper($pdo);
+		break;
 		default:
 			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
 		break;	

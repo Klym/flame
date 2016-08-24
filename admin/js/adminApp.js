@@ -1062,8 +1062,11 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 	}
 });
 
-adminApp.controller("rangCtrl", function($scope, searchObj) {
-	$scope.rangs = rangs;
+adminApp.controller("rangCtrl", function($http, $scope, searchObj) {
+	
+	$http.get("getData.php?type=rangs", {cache: true}).success(function(response) {
+		$scope.rangs = response;
+	});
 	
 	// Меняем очки при изменении ранга
 	$scope.changeScores = function(rangId) {

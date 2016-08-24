@@ -14,6 +14,8 @@ abstract class DomainObject {
 	function setId($id) {
 		$this->id = $id;
 	}
+	
+	abstract function getValues();
 }
 
 ?>
