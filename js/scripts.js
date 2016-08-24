@@ -52,11 +52,6 @@ window.onload = function() { // При загрузке документа
 	
 	// К chat.js
 	if (document.getElementById("chat")) {
-		window.setInterval(function() {
-			core.style.background = "radial-gradient(hsl(" + deg + ", 100%, 100%) 0%, hsl(" + deg + ", 100%, 50%) 50%, hsl(" + deg++ + ", 100%, 0%) 100%)";
-			if (deg == 360)
-				deg = 0;
-		}, 15);
 		setTimeout("printChat(); checkUpdates();",3000);
 	}
 	
