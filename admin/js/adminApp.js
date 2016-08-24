@@ -189,16 +189,46 @@ adminApp.controller("navCtrl", function($scope, $rootScope) {
 // Контроллеры, отвечающие за логику данных.
 
 adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {	
-	// Получаем кэш с данными
-	var cache = $cacheFactory.get("data");
 	
-	$http.get("getData.php?type=pages&from=0&to=3", {cache: true}).success(function(response) {
+	// Получаем кэш количества и кэш данных
+	var countCache = $cacheFactory.get("counts");
+	var dataCache = $cacheFactory.get("pages");
+	
+	// Получаем количество данных с сервера и кэшируем их
+	$http.get("getCount.php?type=pages", {cache: countCache}).success(function(response) {
+		$scope.$emit("changeCount", {
+			key: "pages",
+ 			val: response
+		});
+		$scope.$broadcast("changeCount", {
+			val: response
+		});
+    });
+	
+	// Получаем массив данных на странице просмотра, либо конкретную запись на странице редактирования
+	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	$http.get("getData.php?type=pages&" + params, {cache: dataCache}).success(function(response) {
 		$scope.pages = response;
-		//cache.put("pages", JSON.stringify(response));
 		if (++$rootScope.loaded == $rootScope.arrCount) {
 			$rootScope.showLoader = false;
 		}
 	});
+	
+	// Событие изменения колиества выводимых данных на странице
+	$scope.$on("changeLimit", function(event, args) {
+		$http.get("getData.php?type=pages&from=0&to=" + $scope.limit + "", {cache: dataCache}).success(function(response) {
+			$scope.pages = response;
+		});
+	});
+	
+	// Событие переключения страницы
+	$scope.$on("changePage", function(event, args) {
+ 		var from = $scope.limit * (args.page - 1);
+ 		var count = parseInt($scope.limit);
+		$http.get("getData.php?type=pages&from=" + from + "&to=" + count + "", {cache: dataCache}).success(function(response) {
+			$scope.pages = response;
+		});
+ 	});
 	
 	// Заголовки таблицы
 	$scope.sorts = [{ code: "title", name: "Название" }, { code: "meta_d", name: "Описание" }, { code: "page", name: "Страница" }];
@@ -212,18 +242,8 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 		changeSortService.changeSort(propNum);
 		$scope.sortProp = changeSortService.sortProp;
 	}
-
-	// Устанавливаем наблюдение за длинной массива данных, при его изменении отправляем новое значение контроллеру навигации
-	$scope.$watch("pages.length", function (newValue) {
-		$scope.$emit("changeCount", {
-			key: "pages",
-			val: newValue
-		});
-		$scope.$broadcast("changeCount", {
-			val: newValue
-		});
-    });
 	
+	// Блокировка кнопки добавления, обновления и удаления. По умолчанию: разблокирована.
 	$scope.buttonDisable = false;
 	
 	// Метод перенавправления на страницу добавления данных
@@ -251,7 +271,10 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 			} else {
 				// Устанавливаем id добавленному объекту
 				$scope.pages[$scope.pages.length - 1].id = parseInt(response.data.result);
-				cache.put("pages", JSON.stringify($scope.pages));
+				// Очищаем кэш и увеличиваем количество
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.pages++;
 				var successMessage = "Страница <strong>\"" + $scope.newPage.title + "\"</strong> успешно добавлена.";
 				showSuccessMessage.show(successMessage);
 			}
@@ -282,8 +305,10 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 				var successMessage = "Страница <strong>\"" + $scope.pages[currentId].title + "\"</strong> успешно удалена.";
 				// Удаляем объект из массива
 				$scope.pages.splice(currentId, 1);
-				// Ложим обновленные данные в кэш
-				cache.put("pages", JSON.stringify($scope.pages));
+				// Очищаем кэш 
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.pages--;
 				// Вызываем сервис вывода сообщения
 				showSuccessMessage.show(successMessage);
 			}
@@ -488,7 +513,6 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 		}
 	}
 	
-	
 	$scope.goUpdate = function(id) {
 		$scope.$emit("changeRoute", {
 			route: "users_update",
@@ -528,7 +552,6 @@ adminApp.controller("userGroupCtrl", function($scope, $http, $cacheFactory) {
 		$scope.groups = response;
 	});
 });
-
 
 adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	
