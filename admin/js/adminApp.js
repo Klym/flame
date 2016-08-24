@@ -334,23 +334,45 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 });
 
 adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
-	var cache = $cacheFactory.get("data");
 	
-	if (cache.get("users") != undefined) {
-		$scope.users = JSON.parse(cache.get("users"));
+	var countCache = $cacheFactory.get("counts");
+	var dataCache = $cacheFactory.get("users");
+	
+	$http.get("getCount.php?type=users", {cache: countCache}).success(function(response) {
+		$scope.$emit("changeCount", {
+			key: "users",
+ 			val: response
+		});
+		$scope.$broadcast("changeCount", {
+			val: response
+		});
+    });
+
+	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	$http.get("getData.php?type=users&" + params, {cache: dataCache}).success(function(response) {
+		$scope.users = response;
 		for (var i = 0; i < $scope.users.length; i++) {
 			$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
 			$scope.users[i].access = +$scope.users[i].access;
 		}
-	} else {
-		$http.get("getData.php?type=users").success(function(response) {
+		if (++$rootScope.loaded == $rootScope.arrCount) {
+			$rootScope.showLoader = false;
+		}
+	});
+	
+	$scope.$on("changeLimit", function(event, args) {
+		$http.get("getData.php?type=users&from=0&to=" + $scope.limit + "", {cache: dataCache}).success(function(response) {
 			$scope.users = response;
-			cache.put("users", JSON.stringify(response));
-			if (++$rootScope.loaded == $rootScope.arrCount) {
-				$rootScope.showLoader = false;
-			}
 		});
-	}
+	});
+	
+	$scope.$on("changePage", function(event, args) {
+ 		var from = $scope.limit * (args.page - 1);
+ 		var count = parseInt($scope.limit);
+		$http.get("getData.php?type=users&from=" + from + "&to=" + count + "", {cache: dataCache}).success(function(response) {
+			$scope.users = response;
+		});
+ 	});
 	
 	$scope.sorts = [{ code: "login", name: "Логин" }, { code: "email", name: "E-Mail" }, { code: "access", name: "Группа" }, { code: "regDate", name: "Дата регистрации" }];
 	
@@ -390,16 +412,6 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 	// Определяем массивы данных для select'ов
 	$scope.genders = { 1: "Мужской", 2: "Женский" };
 	$scope.activations = [ "Не подтвержден", "Подтвержден" ];
-		
-	$scope.$watch("users.length", function (newValue) {
-		$scope.$emit("changeCount", {
-			key: "users",
-			val: newValue
-		});
-		$scope.$broadcast("changeCount", {
-			val: newValue
-		});
-    });
 	
 	$scope.buttonDisable = false;
 	// Стандартные данные нового пользователя

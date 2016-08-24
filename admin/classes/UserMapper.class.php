@@ -4,7 +4,9 @@ class UserMapper extends Mapper {
 	
 	function __construct(PDO $pdo) {
 		parent::__construct($pdo);
+		$this->selectCount = $this->PDO->prepare("SELECT COUNT(id) AS count FROM users");
 		$this->selectStmt = $this->PDO->prepare("SELECT * FROM users WHERE id=?");
+		$this->selectCollectionStmt = $this->PDO->prepare("SELECT id, login, name, fam, email, access, regDate FROM users LIMIT ?, ?");
 		$this->selectAllStmt = $this->PDO->prepare("SELECT * FROM users");
 		$this->insertStmt = $this->PDO->prepare("INSERT INTO users (login, password, email, access, name, fam, pol, regDate, birthDate, avatar, activation) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 		$this->updateStmt = $this->PDO->prepare("UPDATE users SET login=?, password=?, email=?, access=?, name=?, fam=?, pol=?, regDate=?, birthDate=?, avatar=?, activation=? WHERE id=?");
