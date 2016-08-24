@@ -65,23 +65,8 @@
                     <div id="chat">
                         <div id="messages">
                             <div class="content">
-                                <div id="atom">
-                                    <div id="core"></div>
-                                    <div id="orbit1">
-                                        <div id="proton1"></div>
-                                    </div>
-                                    <div id="orbit2">
-                                        <div id="proton2"></div>
-                                    </div>
-                                    <div id="orbit3">
-                                        <div id="proton3"></div>
-                                    </div>
-								</div>
-                                <script>
-									var core = document.getElementById("core");
-									var deg = Math.floor(Math.random() * 361);
-									core.style.background = "radial-gradient(hsl(" + deg + ", 100%, 100%) 0%, hsl(" + deg++ + ", 100%, 50%) 50%, hsl(" + deg++ + ", 100%, 0%) 100%)";
-								</script>
+                                <div class="ball"></div>
+                                <div class="ball1"></div>
                             </div>
                         </div>
                         <div id="chatForm">

@@ -263,95 +263,53 @@ ul.circle > li {
 }
 
 /* Начало блока индикатора загрузки */
-#atom {
+.ball {
+	background-color: rgba(0,0,0,0);
+	border:5px solid rgba(0,183,229,0.9);
+	opacity:.9;
+	border-top:5px solid rgba(0,0,0,0);
+	border-left:5px solid rgba(0,0,0,0);
+	border-radius:50px;
+	box-shadow: 0 0 35px #2187e7;
+	width:50px;
+	height:50px;
+	margin:0 auto;
+	-moz-animation:spin .5s infinite linear;
+	-webkit-animation:spin .5s infinite linear;
+}
+
+.ball1 {
+	background-color: rgba(0,0,0,0);
+	border:5px solid rgba(0,183,229,0.9);
+	opacity:.9;
+	border-top:5px solid rgba(0,0,0,0);
+	border-left:5px solid rgba(0,0,0,0);
+	border-radius:50px;
+	box-shadow: 0 0 15px #2187e7; 
+	width:30px;
+	height:30px;
+	margin:0 auto;
 	position:relative;
-	top:-30px;
-	left:80px;
-	width:0;
+	top:-50px;
+	-moz-animation:spinoff .5s infinite linear;
+	-webkit-animation:spinoff .5s infinite linear;
 }
 
-#core {
-	position:absolute;
-	width:35px;
-	height:35px;
-	border-radius:20px;
-	left:36px;
-	top:35px;
-	box-shadow:0 0 50px 48px #000;
+@-moz-keyframes spin {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(360deg); }
 }
-#orbit1, #orbit2, #orbit3 {
-	position:absolute;			
-	width:100px;
-	height:100px;
-	border:2px solid;
-	border-radius:400px;
+@-moz-keyframes spinoff {
+	0% { -moz-transform:rotate(0deg); }
+	100% { -moz-transform:rotate(-360deg); }
 }
-#orbit1 {
-	border-color:#06F;
-	animation:spin1 2s cubic-bezier(.74,.39,.29,.56) 0s infinite;
+@-webkit-keyframes spin {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(360deg); }
 }
-#orbit2 {
-	border-color:#F00;
-	animation:spin2 1s linear 0s infinite;
-}
-#orbit3 {
-	border-color:#0C0;
-	animation:spin3 1.5s cubic-bezier(.74,.39,.29,.56) 0s infinite;
-}
-#proton1, #proton2, #proton3 {
-	width:8px;
-	height:8px;			
-	border-radius:10px;
-	top:25px;
-	position:absolute;
-	left:0;
-}
-#proton1 {
-	background-color:#F00;
-}
-#proton2 {
-	background-color:#009;			
-}
-#proton3 {
-	background-color:#0CF;
-}
-@keyframes spin1 {
-	from { transform:rotate(0deg) skew(15deg,15deg) rotate(-360deg); }
-	to { transform:rotate(0deg) skew(15deg,15deg) rotate(0deg); }
-}
-@keyframes spin2 {
-	from { transform:rotate(0deg) skew(-15deg,-15deg) rotate(360deg); }
-	to { transform:rotate(0deg) skew(-15deg,-15deg) rotate(0deg); }
-}
-@keyframes spin3 {
-	from { transform:rotate(0deg) skew(-30deg,45deg) rotate(-360deg); }
-	to { transform:rotate(0deg) skew(-30deg,45deg) rotate(0deg); }
-}
-
-@-webkit-keyframes spin1 {
-	from { -webkit-transform:rotate(0deg) skew(15deg,15deg) rotate(-360deg); }
-	to { -webkit-transform:rotate(0deg) skew(15deg,15deg) rotate(0deg); }
-}
-@-webkit-keyframes spin2 {
-	from { -webkit-transform:rotate(0deg) skew(-15deg,-15deg) rotate(360deg); }
-	to { -webkit-transform:rotate(0deg) skew(-15deg,-15deg) rotate(0deg); }
-}
-@-webkit-keyframes spin3 {
-	from { -webkit-transform:rotate(0deg) skew(-30deg,45deg) rotate(-360deg); }
-	to { -webkit-transform:rotate(0deg) skew(-30deg,45deg) rotate(0deg); }
-}
-
-@-ms-keyframes spin1 {
-	from { transform:rotate(0deg) skew(15deg,15deg) rotate(-360deg); }
-	to { transform:rotate(0deg) skew(15deg,15deg) rotate(0deg); }
-}
-@-ms-keyframes spin2 {
-	from { transform:rotate(0deg) skew(-15deg,-15deg) rotate(360deg); }
-	to { transform:rotate(0deg) skew(-15deg,-15deg) rotate(0deg); }
-}
-@-ms-keyframes spin3 {
-	from { -ms-transform:rotate(0deg) skew(0deg,-50deg) rotate(-360deg); }
-	to { -ms-transform:rotate(0deg) skew(0deg,-50deg) rotate(0deg); }
+@-webkit-keyframes spinoff {
+	0% { -webkit-transform:rotate(0deg); }
+	100% { -webkit-transform:rotate(-360deg); }
 }
 /* Конец блока индикатора загрузки */
 
