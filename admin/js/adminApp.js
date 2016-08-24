@@ -403,7 +403,7 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 	}
 	// Ставим watcher на поле с аватаром, если оно стандартное, блокируем кнопку сброса
 	$scope.delAvatarButton = false;
-	$scope.$watch("users[currentId].avatar", function(newValue) {
+	$scope.$watch("users[0].avatar", function(newValue) {
 		if (newValue == "net-avatara.jpg") {
 			$scope.delAvatarButton = true;
 		}
@@ -444,7 +444,9 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 			} else {
 				// Устанавливаем id добавленному объекту
 				$scope.users[$scope.users.length - 1].id = parseInt(response.data.result);
-				cache.put("users", JSON.stringify($scope.users));
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.users++;
 				var successMessage = "Пользователь <strong>\"" + $scope.newUser.login + "\"</strong> успешно зарегистрирован.";
 				showSuccessMessage.show(successMessage);
 			}
@@ -472,7 +474,9 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 				$scope.buttonDisable = false;
 				var successMessage = "Пользователь <strong>\"" + $scope.users[currentId].login + "\"</strong> успешно удален.";
 				$scope.users.splice(currentId, 1);
-				cache.put("users", JSON.stringify($scope.users));
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.users--;
 				showSuccessMessage.show(successMessage);
 			}
 		}
@@ -486,10 +490,9 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 	
 	
 	$scope.goUpdate = function(id) {
-		var currentId = searchObj.searchId($scope.users, id);	// Передаем index нашего пользователя в массиве текущему scope'у
 		$scope.$emit("changeRoute", {
 			route: "users_update",
-			id: currentId,
+			id: id,
 			notAnotherPage: true
 		});
 	}
@@ -497,7 +500,7 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 	$scope.update = function() {
 		$scope.buttonDisable = true;
 		// Отправка данных на сервер и помещение в кэш
-		var promise = $http.post("updateData.php?type=users", JSON.stringify($scope.users[$scope.currentId]));
+		var promise = $http.post("updateData.php?type=users", JSON.stringify($scope.users[0]));
 		promise.then(fulfilled, rejected);
 		
 		function fulfilled(response) {
@@ -506,15 +509,15 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 				rejected();
 			} else {
 				$scope.buttonDisable = false;
-				cache.put("users", JSON.stringify($scope.users));
-				var successMessage = "Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> успешно обновлен.";
+				dataCache.removeAll();
+				var successMessage = "Пользователь <strong>\"" + $scope.users[0].login + "\"</strong> успешно обновлен.";
 				showSuccessMessage.show(successMessage);
 			}
 		}
 		
 		function rejected() {
 			$scope.buttonDisable = false;
-			var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[$scope.currentId].login + "\"</strong> не обновлен.";
+			var errorMessage = "Ошибка! Пользователь <strong>\"" + $scope.users[0].login + "\"</strong> не обновлен.";
 			showErrorMessage.show(errorMessage);
 		}
 	}

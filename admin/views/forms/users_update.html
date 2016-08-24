@@ -10,13 +10,13 @@
                   <div class="form-group">
                     <label for="userLogin" class="col-sm-2 control-label">Логин</label>
                     <div class="col-sm-3">
-                      <input type="text" class="form-control" maxlength="15" id="userLogin" ng-model="users[currentId].login" required>
+                      <input type="text" class="form-control" maxlength="15" id="userLogin" ng-model="users[0].login" required>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="userPassword" class="col-sm-2 control-label">Пароль</label>
                     <div class="col-sm-4">
-                      <input type="text" class="form-control" id="userPassword" ng-model="users[currentId].password" required ng-disabled="disableEditPass">
+                      <input type="text" class="form-control" id="userPassword" ng-model="users[0].password" required ng-disabled="disableEditPass">
                     </div>
                     <div class"col-sm-2">
                     	<button type="button" class="btn btn-sm btn-danger rightBtn" ng-click="enablePass($event)">Открыть</button>
@@ -25,59 +25,59 @@
                   <div class="form-group">
                   	<label for="userEmail" class="col-sm-2 control-label">Email</label>
                     <div class="col-sm-5">
-                    	<input type="email" class="form-control" id="userEmail" ng-model="users[currentId].email" required>
+                    	<input type="email" class="form-control" id="userEmail" ng-model="users[0].email" required>
                     </div>
                   </div>
                   <div class="form-group"  ng-controller="userGroupCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Группа</label>
                     <div class="col-sm-5">
-                    	<select class="form-control" id="userGroup" ng-model="users[currentId].access" ng-options="$eval(group.id) as group.title for group in groups"></select>
+                    	<select class="form-control" id="userGroup" ng-model="users[0].access" ng-options="$eval(group.id) as group.title for group in groups"></select>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userName" class="col-sm-2 control-label">Имя</label>
                     <div class="col-sm-5">
-                    	<input type="text" class="form-control" id="userName" ng-model="users[currentId].name" required>
+                    	<input type="text" class="form-control" id="userName" ng-model="users[0].name" required>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userFam" class="col-sm-2 control-label">Фамилия</label>
                     <div class="col-sm-5">
-                    	<input type="text" class="form-control" id="userFam" ng-model="users[currentId].fam" required>
+                    	<input type="text" class="form-control" id="userFam" ng-model="users[0].fam" required>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userPol" class="col-sm-2 control-label">Пол</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userPol" ng-model="users[currentId].pol" ng-options="key as val for (key, val) in genders"></select>
+                    	<select class="form-control" id="userPol" ng-model="users[0].pol" ng-options="key as val for (key, val) in genders"></select>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label class="col-sm-2 control-label">Дата регистрации</label>
                     <div class="col-sm-5">
-                    	<div class="form-control-static">{{users[currentId].regDate | date: "yyyy-MM-dd HH:mm:ss"}}</div>
+                    	<div class="form-control-static">{{users[0].regDate | date: "yyyy-MM-dd HH:mm:ss"}}</div>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userBirthDate" class="col-sm-2 control-label">Дата рождения</label>
                     <div class="col-sm-5">
-                    	<input type="date" class="form-control" id="userBirthDate" ng-model="users[currentId].birthDate" required>
+                    	<input type="date" class="form-control" id="userBirthDate" ng-model="users[0].birthDate" required>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userAvatar" class="col-sm-2 control-label">Аватар</label>
                     <div class="col-sm-5">
-                    	<input type="text" class="form-control" id="userAvatar" ng-model="users[currentId].avatar" required>
+                    	<input type="text" class="form-control" id="userAvatar" ng-model="users[0].avatar" required>
                     </div>
                     <div class"col-sm-1">
-                    	<img src="../../avatars/{{users[currentId].avatar}}" class="avatar-sm">
-						<button type="button" ng-disabled="delAvatarButton" class="btn btn-sm btn-warning rightBtn" ng-click="delAvatar(currentId)">Удалить</button>
+                    	<img src="../../avatars/{{users[0].avatar}}" class="avatar-sm">
+						<button type="button" ng-disabled="delAvatarButton" class="btn btn-sm btn-warning rightBtn" ng-click="delAvatar(0)">Удалить</button>
                     </div>
                   </div>
                   <div class="form-group">
                   	<label for="userActivation" class="col-sm-2 control-label">Доступ</label>
                     <div class="col-sm-3">
-                    	<select class="form-control" id="userActivation" ng-model="users[currentId].activation" ng-options="key as val for (key, val) in activations""></select>
+                    	<select class="form-control" id="userActivation" ng-model="users[0].activation" ng-options="key as val for (key, val) in activations""></select>
                     </div>
                   </div>
                   <div class="form-group">
