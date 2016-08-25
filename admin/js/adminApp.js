@@ -90,7 +90,8 @@ var adminApp = angular.module("adminApp", ["ngRoute"])
 adminApp.controller("routeCtrl", function($scope, $location, $rootScope, $cacheFactory, consts) {
 	$rootScope.selectedPage = "main";	// Текущая страница
 	$rootScope.currentId;				// Текущий id данных
-
+	
+	// !!! Индикатор загрузки не используется
 	$rootScope.arrCount = consts.COUNT;		// Количество возможных массивов
 	$rootScope.showLoader = false;			// Флажок показа индикатора загрузки
 	$rootScope.loaded = 0;					// Количество загрузившихся массивов
@@ -209,9 +210,6 @@ adminApp.controller("pageCtrl", function($scope, $rootScope, $http, $cacheFactor
 	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
 	$http.get("getData.php?type=pages&" + params, {cache: dataCache}).success(function(response) {
 		$scope.pages = response;
-		if (++$rootScope.loaded == $rootScope.arrCount) {
-			$rootScope.showLoader = false;
-		}
 	});
 	
 	// Событие изменения колиества выводимых данных на странице
@@ -376,16 +374,17 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 			val: response
 		});
     });
-
-	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	
+	// Если страница data, то достать всех пользователей(админов, указано на стороне сервера!)
+	var params = '';
+	if ($rootScope.selectedPage != 'data') {
+		var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	}
 	$http.get("getData.php?type=users&" + params, {cache: dataCache}).success(function(response) {
 		$scope.users = response;
 		for (var i = 0; i < $scope.users.length; i++) {
 			$scope.users[i].birthDate = new Date($scope.users[i].birthDate);
 			$scope.users[i].access = +$scope.users[i].access;
-		}
-		if (++$rootScope.loaded == $rootScope.arrCount) {
-			$rootScope.showLoader = false;
 		}
 	});
 	
@@ -575,13 +574,14 @@ adminApp.controller("categoryCtrl", function($scope, $rootScope, $http, $cacheFa
 			val: response
 		});
     });
-
-	var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	
+	// Если страница data, то достать все категории
+	var params = '';
+	if ($rootScope.selectedPage != 'data') {
+		var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
+	}
 	$http.get("getData.php?type=categories&" + params, {cache: dataCache}).success(function(response) {
 		$scope.categories = response;
-		if (++$rootScope.loaded == $rootScope.arrCount) {
-			$rootScope.showLoader = false;
-		}
 	});
 	
 	$scope.$on("changeLimit", function(event, args) {
@@ -743,9 +743,6 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 			$scope.data[i].cat = +$scope.data[i].cat;
 			$scope.data[i].author = +$scope.data[i].author;
 		}
-		if (++$rootScope.loaded == $rootScope.arrCount) {
-			$rootScope.showLoader = false;
-		}
 	});
 		
 	$scope.$on("changeLimit", function(event, args) {
@@ -882,9 +879,6 @@ adminApp.controller("dataCtrl", function($scope, $rootScope, $http, $cacheFactor
 
 adminApp.controller("newsCtrl", function($scope, $rootScope, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {
 	$scope.news = news;
-	if (++$rootScope.loaded == $rootScope.arrCount) {
-		$rootScope.showLoader = false;
-	}
 	$scope.sorts = [{ code: "title", name: "Название" },  { code: "date", name: "Дата" }, { code: "type", name: "Тип" }];
 	
 	changeSortService.setSortClasses($scope.sorts);
@@ -957,9 +951,6 @@ adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFact
 			// Преобразуем строковые значения в числовые
 			$scope.players[i].scores = +$scope.players[i].scores;
 			$scope.players[i].rang = +$scope.players[i].rang;
-		}
-		if (++$rootScope.loaded == $rootScope.arrCount) {
-			$rootScope.showLoader = false;
 		}
 	});
 		

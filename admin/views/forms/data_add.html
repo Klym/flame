@@ -46,7 +46,7 @@
                   <div class="form-group"  ng-controller="userCtrl">
                   	<label for="userGroup" class="col-sm-2 control-label">Автор</label>
                     <div class="col-sm-2">
-                    	<select class="form-control" id="userGroup" ng-model="newDataItem.author" ng-options="$eval(user.id) as user.login for user in (users | filter : {access : 1})"></select>
+                    	<select class="form-control" id="userGroup" ng-model="newDataItem.author" ng-options="$eval(user.id) as user.login for user in users"></select>
                     </div>
                   </div>
                   <div class="form-group">
