@@ -29,7 +29,11 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 		break;
 		case "data":
 			$mapper = new DataItemMapper($pdo);
-			$object = new DataItem($data->id,  $data->title, $data->text, $data->cat, $data->meta_d, $data->meta_k, $data->description, $data->view, $data->author, $data->date);
+			$object = new DataItem($data->id, $data->title, $data->text, $data->cat, $data->meta_d, $data->meta_k, $data->description, $data->view, $data->author, $data->date);
+		break;
+		case "news":
+			$mapper = new NewsMapper($pdo);
+			$object = new News($data->id, $data->title, $data->text, $data->full_text, $data->date, $data->author, $data->view, $data->type);
 		break;
 		case "sostav":
 			$mapper = new SostavMapper($pdo);
