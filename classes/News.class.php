@@ -21,7 +21,7 @@ class News extends Data {
 	}
 	
 	function request() {
-		$this->query = "SELECT news.id AS id, title, text, view, DATE_FORMAT(news.date,'%d.%m.%Y') AS date,author,users.login AS authorLogin FROM news JOIN users ON news.author = users.id WHERE type = 1 ORDER BY id DESC";
+		$this->query = "SELECT news.id AS id, title, text, view, DATE_FORMAT(news.date,'%d.%m.%Y') AS date,author,users.login AS authorLogin FROM news JOIN users ON news.author = users.id WHERE type = 1 OR type = 2 ORDER BY id DESC";
 		$getData = parent::getData();
 		$result = self::requestData( $getData,$this->db );
 		$this->dataCount = count($result);

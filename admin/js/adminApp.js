@@ -375,9 +375,9 @@ adminApp.controller("userCtrl", function($scope, $rootScope, $http, $cacheFactor
 		});
     });
 	
-	// Если страница data, то достать всех пользователей(админов, указано на стороне сервера!)
+	// Если страница data или news, то достать всех пользователей(админов, указано на стороне сервера!)
 	var params = '';
-	if ($rootScope.selectedPage != 'data') {
+	if ($rootScope.selectedPage != 'data' && $rootScope.selectedPage != 'news') {
 		var params = ($rootScope.currentId != undefined) ? "id=" + $rootScope.currentId + "" : "from=0&to=5";
 	}
 	$http.get("getData.php?type=users&" + params, {cache: dataCache}).success(function(response) {
@@ -898,7 +898,7 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, $http, $cacheFactor
 		for (var i = 0; i < $scope.news.length; i++) {
 			// Перевод типа из строки в необходимый вьюхе
 			$scope.news[i].date = new Date($scope.news[i].date);
-			$scope.news[i].cat = +$scope.news[i].cat;
+			$scope.news[i].type = +$scope.news[i].type;
 			$scope.news[i].author = +$scope.news[i].author;
 		}
 	});
@@ -941,7 +941,7 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, $http, $cacheFactor
 	}
 	
 	$scope.add = function() {
-		$scope.data.push($scope.newNewsItem);
+		$scope.news.push($scope.newNewsItem);
 		$scope.buttonDisable = true;
 		
 		// Отправляем данные на сервер
@@ -973,12 +973,37 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, $http, $cacheFactor
 	$scope.del = function(id) {
 		if (!confirm("Вы дейстивтельно хотите удалить эту новость?")) return;
 		var currentId = searchObj.searchId($scope.news, id);
-		var successMessage = "Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> успешно удалена.";
-		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> не удалена.";
-		$scope.news.splice(currentId, 1);
-		showSuccessMessage.show(successMessage);
+		$scope.buttonDisable = true;
+		
+		var promise = $http.get("deleteData.php?id=" + id + "&type=news");
+		promise.then(fulfilled, rejected);
+		
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				var successMessage = "Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> успешно удалена.";
+				$scope.news.splice(currentId, 1);
+				dataCache.removeAll();
+				countCache.removeAll();
+				$rootScope.counts.data--;
+				$scope.$broadcast("changeCount", {
+					key: "news",
+					val: $rootScope.counts.news
+				});
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[currentId].title + "\"</strong> не удалена.";
+			showErrorMessage.show(errorMessage);
+		}
 	}
-	
+		
 	$scope.goUpdate = function(id) {
 		$scope.$emit("changeRoute", {
 			route: "news_update",
@@ -988,12 +1013,29 @@ adminApp.controller("newsCtrl", function($scope, $rootScope, $http, $cacheFactor
 	}
 	
 	$scope.update = function() {
-		// Отправка данных на сервер
+		$scope.buttonDisable = true;
+		// Отправка данных на сервер и помещение в кэш
+		var promise = $http.post("updateData.php?type=news", JSON.stringify($scope.news[0]));
+		promise.then(fulfilled, rejected);
 		
-		var successMessage = "Новость <strong>\"" + $scope.news[$scope.currentId].title + "\"</strong> успешно обновлена.";
-		var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[$scope.currentId].title + "\"</strong> не обновлена.";
-		showSuccessMessage.show(successMessage);
-	}
+		function fulfilled(response) {
+			if (response.data.result != "200 OK") {
+				console.log(response.data);
+				rejected();
+			} else {
+				$scope.buttonDisable = false;
+				dataCache.removeAll();
+				var successMessage = "Новость <strong>\"" + $scope.news[0].title + "\"</strong> успешно обновлена.";
+				showSuccessMessage.show(successMessage);
+			}
+		}
+		
+		function rejected() {
+			$scope.buttonDisable = false;
+			var errorMessage = "Ошибка! Новость <strong>\"" + $scope.news[0].title + "\"</strong> не обновлена.";
+			showErrorMessage.show(errorMessage);
+		}
+	}	
 });
 
 adminApp.controller("sostavCtrl", function($scope, $rootScope, $http, $cacheFactory, showSuccessMessage, showErrorMessage, searchObj, changeSortService) {

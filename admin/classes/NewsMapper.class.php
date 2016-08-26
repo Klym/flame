@@ -9,7 +9,7 @@ class NewsMapper extends Mapper {
 		$this->selectCollectionStmt = $this->PDO->prepare("SELECT id, title, date, type FROM news ORDER BY date DESC LIMIT ?, ?");
 		$this->selectAllStmt = $this->PDO->prepare("SELECT * FROM news");
 		$this->insertStmt = $this->PDO->prepare("INSERT INTO news (title, text, full_text, date, author, view, type) VALUES (?,?,?,?,?,?,?)");
-		$this->updateStmt = $this->PDO->prepare("UPDATE categories SET title=?, text=?, full_text=?, date=?, author=?, view=?, type=? WHERE id=?");
+		$this->updateStmt = $this->PDO->prepare("UPDATE news SET title=?, text=?, full_text=?, date=?, author=?, view=?, type=? WHERE id=?");
 		$this->deleteStmt = $this->PDO->prepare("DELETE FROM news WHERE id=?");
 	}
 	
