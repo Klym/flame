@@ -89,6 +89,12 @@ footer {
 	width:80px;
 }
 
+#authorizeForm > form > #error {
+    position:relative;
+	margin-bottom:6px;
+	color:#F00;
+}
+
 @media (min-width: 992px) {
 	.navigation {
 		width:250px;

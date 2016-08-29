@@ -7,8 +7,11 @@ if (isset($_SESSION["login"])) {
 	header("Location: index.php");
 }
 
-if (isset($_POST["login"]) && !empty($_POST["login"])) {$login = $_POST["login"];}
-if (isset($_POST["password"]) && !empty($_POST["password"])) {$password = $_POST["password"];}
+$data = file_get_contents("php://input");
+$data = json_decode($data);
+
+if (isset($data->login) && !empty($data->login)) {$login = $data->login;}
+if (isset($data->password) && !empty($data->password)) {$password = $data->password;}
 
 if (isset($login) && isset($password)) {
 	$login = Data::checkData($login);
@@ -18,12 +21,14 @@ if (isset($login) && isset($password)) {
 	$checkObj = new Check($pdo);
 	if ($checkObj->check($login, $password)) {
 		$_SESSION['login'] = $login;
-		echo "<html><head><meta http-equiv='refresh' content='0; url=index.php'></head></html>";
+		$_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
+		$_SESSION['fingerprint'] = md5($login.$_SERVER['HTTP_USER_AGENT'].session_id());		
+		
+		echo "200";
 	} else {
 		echo 'Неверный логин или пароль';
-		echo "<html><head><meta http-equiv='refresh' content='2; url=login.php'></head></html>";
 	}
 } else {
-	die("<html><head><meta http-equiv='refresh' content='2; url=login.php'></head>Вы не ввели не всю информацию, вернитесь и заполните все поля.</html>");
+	echo("Вы не ввели не всю информацию, вернитесь и заполните все поля.");
 }
 ?>
