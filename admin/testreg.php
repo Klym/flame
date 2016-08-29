@@ -20,7 +20,7 @@ if (isset($login) && isset($password)) {
 	$ip = $_SERVER['REMOTE_ADDR'];
 	
 	$checkObj = new Check($pdo);
-	//$checkObj->delete_old();
+	$checkObj->delete_old();
 	$fail_ip = $checkObj->check_ip($ip);
 	
 	$count = isset($_COOKIE['flm_ip']) ? $_COOKIE['flm_ip'] : 0;

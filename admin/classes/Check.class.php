@@ -46,7 +46,7 @@ class Check {
 	}
 	
 	public function delete_old() {
-		$stmt = $this->pdo->prepare("DELETE FROM block_ip WHERE (? - datetime) <= 300");
+		$stmt = $this->pdo->prepare("DELETE FROM block_ip WHERE (? - datetime) >= 300");
 		$stmt->bindValue(1, time());
 		$stmt->execute();
 	}
