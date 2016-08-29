@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class CategoryMapper extends Mapper {
 	

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Category extends Data {
 	private $meta_d;

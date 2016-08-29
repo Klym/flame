@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Sostav extends DomainObject {
 	private $name;

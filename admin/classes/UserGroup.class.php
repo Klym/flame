@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class UserGroup extends DomainObject {
 	private $title;

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class Page extends DomainObject {
 	private $page;

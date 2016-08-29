@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 class DataItem extends Data {
 	private $cat;
