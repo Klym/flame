@@ -1,8 +1,8 @@
 <?php
 session_start();
-if (isset($_SESSION["login"])) {
-	header("Location: index.php");
-}
+require("blocks/autoload.php");
+
+Check::rewrite();
 ?>
 <!doctype html>
 <html>

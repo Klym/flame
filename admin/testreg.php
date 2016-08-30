@@ -3,9 +3,7 @@ session_start();
 require("blocks/autoload.php");
 require("blocks/db.php");
 
-if (isset($_SESSION["login"])) {
-	header("Location: index.php");
-}
+Check::rewrite();
 
 $data = file_get_contents("php://input");
 $data = json_decode($data);
