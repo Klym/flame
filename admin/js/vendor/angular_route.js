@@ -276,11 +276,11 @@
                  *   <file name="index.html">
                  *     <div ng-controller="MainController">
                  *       Choose:
-                 *       <a href="../../admin2/js/Book/Moby">Moby</a> |
-                 *       <a href="../../admin2/js/Book/Moby/ch/1">Moby: Ch1</a> |
-                 *       <a href="../../admin2/js/Book/Gatsby">Gatsby</a> |
-                 *       <a href="../../admin2/js/Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-                 *       <a href="../../admin2/js/Book/Scarlet">Scarlet Letter</a><br/>
+                 *       <a href="../../../admin2/js/Book/Moby">Moby</a> |
+                 *       <a href="../../../admin2/js/Book/Moby/ch/1">Moby: Ch1</a> |
+                 *       <a href="../../../admin2/js/Book/Gatsby">Gatsby</a> |
+                 *       <a href="../../../admin2/js/Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+                 *       <a href="../../../admin2/js/Book/Scarlet">Scarlet Letter</a><br/>
                  *
                  *       <div ng-view></div>
                  *
@@ -678,11 +678,11 @@
           <file name="index.html">
             <div ng-controller="MainCtrl as main">
               Choose:
-              <a href="../../admin2/js/Book/Moby">Moby</a> |
-              <a href="../../admin2/js/Book/Moby/ch/1">Moby: Ch1</a> |
-              <a href="../../admin2/js/Book/Gatsby">Gatsby</a> |
-              <a href="../../admin2/js/Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
-              <a href="../../admin2/js/Book/Scarlet">Scarlet Letter</a><br/>
+              <a href="../../../admin2/js/Book/Moby">Moby</a> |
+              <a href="../../../admin2/js/Book/Moby/ch/1">Moby: Ch1</a> |
+              <a href="../../../admin2/js/Book/Gatsby">Gatsby</a> |
+              <a href="../../../admin2/js/Book/Gatsby/ch/4?key=value">Gatsby: Ch4</a> |
+              <a href="../../../admin2/js/Book/Scarlet">Scarlet Letter</a><br/>
     
               <div class="view-animate-container">
                 <div ng-view class="view-animate"></div>
