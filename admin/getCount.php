@@ -32,6 +32,8 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 			die(json_encode(array("result" => "Ошибка. Невозможно установить тип данных")));
 		break;
 	}
+} else {
+	die(json_encode(array("result" => "Данные не были переданы")));
 }
 try {
 	$count = $mapper->getCount();
