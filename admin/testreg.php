@@ -18,8 +18,8 @@ if (isset($login) && isset($password)) {
 	$password = Data::checkData($password);
 	$password = strrev(md5($password));
 	$ip = $_SERVER['REMOTE_ADDR'];
-	
 	$checkObj = new Check($pdo);
+	
 	$checkObj->delete_old();
 	$fail_ip = $checkObj->check_ip($ip);
 	
@@ -30,8 +30,9 @@ if (isset($login) && isset($password)) {
 	
 	if ($checkObj->check($login, $password)) {
 		if ($fail_ip) {
-			$checkObj->delete_ip($fail_ip['ip']);
+			$checkObj->delete_ip($fail_ip['id']);
 		}
+		setcookie('flm_ip', 0, time() - 3600);
 		$_SESSION['login'] = $login;
 		$_SESSION['ip'] = $ip;
 		$_SESSION['fingerprint'] = md5($login.$_SERVER['HTTP_USER_AGENT'].session_id());		

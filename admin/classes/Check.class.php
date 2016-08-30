@@ -41,7 +41,8 @@ class Check {
 	}
 	
 	public function delete_ip($id) {
-		$stmt = $this->pdo->prepare("DELETE FROM block_ip WHERE id = " + $id + "");
+		$stmt = $this->pdo->prepare("DELETE FROM block_ip WHERE id = ?");
+		$stmt->bindValue(1, $id, PDO::PARAM_INT);
 		$stmt->execute();
 	}
 	
