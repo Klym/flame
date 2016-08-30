@@ -1,5 +1,7 @@
 window.onload = function() {
+	var timeout;
 	document.authorizeForm.onsubmit = function() {
+		window.clearTimeout(timeout);
 		var login = this.login.value;
 		var password = this.password.value
 		if (login === '' || password === '') {
@@ -29,7 +31,7 @@ window.onload = function() {
 				} else {
 					errorBlock.firstChild.nodeValue = xhr.responseText;
 				}
-				window.setTimeout(function() {
+				timeout = window.setTimeout(function() {
 					errorBlock.removeChild(errorBlock.firstChild);
 				}, 3500);
 			}

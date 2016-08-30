@@ -91,6 +91,7 @@ footer {
 
 #authorizeForm > form > #error {
     position:relative;
+	width:324px;
 	margin-bottom:8px;
 	color:#F00;
 }
