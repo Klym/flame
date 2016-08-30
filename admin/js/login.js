@@ -11,17 +11,27 @@ window.onload = function() {
 		obj.password = password;
 		var data = JSON.stringify(obj);
 		var xhr = new XMLHttpRequest();
+		var errorBlock = document.getElementById('error');
+		errorBlock.style.color = "rgb(160, 137, 137)";
+		if (errorBlock.firstChild == undefined) {
+			errorBlock.appendChild(document.createTextNode("Подождите..."));
+		} else {
+			errorBlock.firstChild.nodeValue = "Подождите...";
+		}
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState != 4) return;
 			if (parseInt(xhr.responseText) === 200) {
 				window.location.href = 'index.php';
 			} else {
-				var errorBlock = document.getElementById('error');
+				errorBlock.style.color = "#F00";
 				if (errorBlock.firstChild == undefined) {
 					errorBlock.appendChild(document.createTextNode(xhr.responseText));
 				} else {
 					errorBlock.firstChild.nodeValue = xhr.responseText;
 				}
+				window.setTimeout(function() {
+					errorBlock.removeChild(errorBlock.firstChild);
+				}, 3500);
 			}
 		}
 		xhr.open('POST', 'testreg.php', true);
