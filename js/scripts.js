@@ -181,7 +181,7 @@ window.onload = function() { // При загрузке документа
 
 // Начало chat
 
-var checkInterval = 1000; 	// Частота проверок сообщений чата (mSec)
+var checkInterval = 10000; 	// Частота проверок сообщений чата (mSec)
 var checkTimer;				// Таймер проверки
 var lastModified;			// Последний id чата
 var lastUpdate;				// Последний id чата для определения новых сообщений в базе
@@ -909,10 +909,35 @@ function getNowTime() {
 		var time = request.getResponseHeader("Current-Time");
 		var divTime = document.getElementById("time");
 		divTime.innerHTML = time;
-		setTimeout("getNowTime()",1000);
+		tickTime(time, divTime);
 	}
 	request.open("HEAD","../gettime.php",true);
 	request.send(null);
+}
+
+function checkZero(num) {
+	return (num < 10 && String(num).length < 2) ? '0' + num : num;
+}
+
+function tickTime(time, divTime) {
+	divTime.innerHTML = time;
+	var parsedTime = time.split(":");
+	if (++parsedTime[2] >= 60) {
+		parsedTime[2] = 0;
+		if (++parsedTime[1] >= 60) {
+			parsedTime[1] = 0;
+			if (++parsedTime[0] >= 24) {
+				parsedTime[0] = 0;
+			}
+		}
+	}
+	for (var i = 0; i < 3; i++) {
+		parsedTime[i] = checkZero(parsedTime[i]);
+	}
+	time = parsedTime.join(":");
+	setTimeout(function() {
+		tickTime(time, divTime);
+	}, 1000);
 }
 
 function getNowDate() {
@@ -922,7 +947,6 @@ function getNowDate() {
 		var date = request.getResponseHeader("Current-Date");
 		var divDate = document.getElementById("date");
 		divDate.innerHTML = date;
-		setTimeout("getNowDate()",2000);
 	}
 	request.open("HEAD","../gettime.php",true);
 	request.send(null);
