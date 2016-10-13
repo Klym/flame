@@ -6,39 +6,11 @@ require("check.php");
 <html ng-app="adminApp">
 <head>
 <meta charset="utf-8">
+<link rel="import" href="import.html">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="Bootstrap/styles/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/style.css">
-<script src="Bootstrap/js/jquery-1.11.1.min.js"></script>
-<script src="Bootstrap/js/bootstrap.min.js"></script>
-<script src="js/vendor/angular.min.js"></script>
-<script src="js/vendor/angular_resource.js"></script>
-<script src="js/vendor/angular_route.js"></script>
-<script src="js/vendor/md5.js"></script>
-
-<script src="js/app.js"></script>
-<script src="js/controllers/route.js"></script>
-<script src="js/controllers/nav.js"></script>
-<script src="js/controllers/page.js"></script>
-<script src="js/controllers/user.js"></script>
-<script src="js/controllers/userGroup.js"></script>
-<script src="js/controllers/category.js"></script>
-<script src="js/controllers/data.js"></script>
-<script src="js/controllers/news.js"></script>
-<script src="js/controllers/sostav.js"></script>
-<script src="js/controllers/rang.js"></script>
-<script src="js/controllers/pagination.js"></script>
-
-<script src="js/services/message.js"></script>
-<script src="js/services/searchObj.js"></script>
-<script src="js/services/changeSort.js"></script>
-
-<script src="js/directives/defineUserGroup.js"></script>
-<script src="js/directives/defineCat.js"></script>
-<script src="js/directives/defineNewsType.js"></script>
-<script src="js/directives/definePlayerRang.js"></script>
-
-<script src="js/filtres/getPaginationPages.js"></script>
+<flame-import></flame-import>
 <script>
 	var href = document.location.href.split("/");
 	var base = href[2];
