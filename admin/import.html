@@ -1,46 +1,38 @@
-<template>
-	<script src="Bootstrap/js/jquery-1.11.1.min.js"></script>
-	<script src="Bootstrap/js/bootstrap.min.js"></script>
-    <script src="js/vendor/angular.min.js"></script>
-    <script src="js/vendor/angular_resource.js"></script>
-    <script src="js/vendor/angular_route.js"></script>
-    <script src="js/vendor/md5.js"></script>
-    
-    <script src="js/app.js"></script>
-    <script src="js/controllers/route.js"></script>
-    <script src="js/controllers/nav.js"></script>
-    <script src="js/controllers/page.js"></script>
-    <script src="js/controllers/user.js"></script>
-    <script src="js/controllers/userGroup.js"></script>
-    <script src="js/controllers/category.js"></script>
-    <script src="js/controllers/data.js"></script>
-    <script src="js/controllers/news.js"></script>
-    <script src="js/controllers/sostav.js"></script>
-    <script src="js/controllers/rang.js"></script>
-    <script src="js/controllers/pagination.js"></script>
-    
-    <script src="js/services/message.js"></script>
-    <script src="js/services/searchObj.js"></script>
-    <script src="js/services/changeSort.js"></script>
-    
-    <script src="js/directives/defineUserGroup.js"></script>
-    <script src="js/directives/defineCat.js"></script>
-    <script src="js/directives/defineNewsType.js"></script>
-    <script src="js/directives/definePlayerRang.js"></script>
-    
-    <script src="js/filtres/getPaginationPages.js"></script>
-</template>
+<script src="Bootstrap/js/jquery-1.11.1.min.js"></script>
+<script src="Bootstrap/js/bootstrap.min.js"></script>
+<script src="js/vendor/angular.min.js"></script>
+<script src="js/vendor/angular_resource.js"></script>
+<script src="js/vendor/angular_route.js"></script>
+<script src="js/vendor/md5.js"></script>
+
+<script src="js/app.js"></script>
+<script src="js/controllers/route.js"></script>
+<script src="js/controllers/nav.js"></script>
+<script src="js/controllers/page.js"></script>
+<script src="js/controllers/user.js"></script>
+<script src="js/controllers/userGroup.js"></script>
+<script src="js/controllers/category.js"></script>
+<script src="js/controllers/data.js"></script>
+<script src="js/controllers/news.js"></script>
+<script src="js/controllers/sostav.js"></script>
+<script src="js/controllers/rang.js"></script>
+<script src="js/controllers/pagination.js"></script>
+
+<script src="js/services/message.js"></script>
+<script src="js/services/searchObj.js"></script>
+<script src="js/services/changeSort.js"></script>
+
+<script src="js/directives/defineUserGroup.js"></script>
+<script src="js/directives/defineCat.js"></script>
+<script src="js/directives/defineNewsType.js"></script>
+<script src="js/directives/definePlayerRang.js"></script>
+
+<script src="js/filtres/getPaginationPages.js"></script>
 <script>
-	(function() {
-		var ComponentAProto = Object.create(HTMLElement.prototype);
-		var importDocument = document.currentScript.ownerDocument;
-		
-		ComponentAProto.createdCallback = function() {
-			var template = importDocument.querySelector("template");
-			var root = this.createShadowRoot();
-			root.appendChild(document.importNode(template.content, true));
-		};
-		
-		document.registerElement('flame-import', { prototype: ComponentAProto });
-	})();
+	var href = document.location.href.split("/");
+	var base = href[2];
+	var baseEl = document.createElement("base");
+	baseEl.setAttribute("href", "http://" + base + "/admin/");
+	var head = document.getElementsByTagName("head")[0];
+	head.appendChild(baseEl);
 </script>

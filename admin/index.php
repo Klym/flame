@@ -6,19 +6,10 @@ require("check.php");
 <html ng-app="adminApp">
 <head>
 <meta charset="utf-8">
-<link rel="import" href="import.html">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="Bootstrap/styles/bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/style.css">
-<flame-import></flame-import>
-<script>
-	var href = document.location.href.split("/");
-	var base = href[2];
-	var baseEl = document.createElement("base");
-	baseEl.setAttribute("href", "http://" + base + "/admin/");
-	var head = document.getElementsByTagName("head")[0];
-	head.appendChild(baseEl);
-</script>
+<link rel="import" href="import.html">
 <title>Flame Admin</title>
 </head>
 <body>
